@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ result.title }}</title>
+    {% include 'includes.html' %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+{% include 'top.html' %}
+
+<div>&nbsp;</div>
+
+<div class="container">
+
+    <div class="row table-light">
+        <div class="col-3">
+            <div class="row p-1 font-weight-bolder themed-grid-col">Categories</div>
+            {% for category in result.categories %}
+                <div class="row p-1 font-weight-normal themed-grid-col">{{ category.name }}</div>
+            {% endfor %}
+        </div>
+        <div class="col-8">
+            <div class="row p-1 font-weight-bolder themed-grid-col">Latest Items</div>
+
+        </div>
+    </div>
+
+</div>
+{% include 'footer.html' %}
+</body>
+</html>
