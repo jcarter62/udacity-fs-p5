@@ -20,7 +20,8 @@ app = Flask(__name__)
 def main():
     data = request.form
     data.title = 'main'
-    data.categories = api_categories()
+    cats = api_categories()
+    data.categories = cats.json
     return render_template("main.html", result=data)
 
 
@@ -38,9 +39,7 @@ def api_categories():
         recs = session.query(Category).all()
 
     json_records = [r.serialize for r in recs]
-
-#    return jsonify([r.serialize for r in recs] )
-    return json_records
+    return jsonify( json_records )
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
