@@ -6,7 +6,7 @@ from passlib.apps import custom_app_context as pwd_context
 import random, string
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 import urllib
-from datetime import datetime, date
+from datetime import datetime, timedelta
 
 
 Base = declarative_base()
@@ -92,10 +92,10 @@ class Sample:
         return items
 
     def item(self):
-        def buildone(name,categoryid,desc=''):
+        def buildone(name,categoryid,desc='', offset=0):
             return {'name':name, 'categoryid':categoryid, \
                     'description': getdesc(), \
-                    'create_date': datetime.now()
+                    'create_date': getdatetime(offset)
                     }
 
         def getdesc():
@@ -104,13 +104,17 @@ class Sample:
             result = f.read()
             return result
 
+        def getdatetime(offset):
+            dt = datetime.now() +  timedelta(seconds=offset)
+            return dt
+
         items = [
             buildone('apples', 1),
-            buildone('grapes', 1),
-            buildone('peppers', 2),
-            buildone('pizza', 2),
-            buildone('pears', 3),
-            buildone('bread', 4),
+            buildone('grapes', 1, offset=100),
+            buildone('peppers', 2, offset=1000),
+            buildone('pizza', 2, offset=1500),
+            buildone('pears', 3, offset=300),
+            buildone('bread', 4, offset=600),
         ]
         return items
 
