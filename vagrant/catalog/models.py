@@ -1,10 +1,13 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
 from passlib.apps import custom_app_context as pwd_context
 import random, string
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
+import urllib
+from datetime import datetime, date
+
 
 Base = declarative_base()
 secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
@@ -63,6 +66,7 @@ class Item(Base):
     categoryid = Column(Integer)
     name = Column(String)
     description = Column(String)
+    create_date = Column(DateTime, default=datetime.utcnow)
 
     @property
     def serialize(self):
@@ -70,7 +74,8 @@ class Item(Base):
         return {
             'categoryid': self.categoryid,
             'name': self.name,
-            'description': self.description
+            'description': self.description,
+            'create_date': self.create_date
         }
 
 class Sample:
@@ -83,6 +88,29 @@ class Sample:
             buildone('Baseball'),
             buildone('Frisbee'),
             buildone('Snowboarding')
+        ]
+        return items
+
+    def item(self):
+        def buildone(name,categoryid,desc=''):
+            return {'name':name, 'categoryid':categoryid, \
+                    'description': getdesc(), \
+                    'create_date': datetime.now()
+                    }
+
+        def getdesc():
+            link = "https://loripsum.net/api/1/medium/plaintext"
+            f = urllib.urlopen(link)
+            result = f.read()
+            return result
+
+        items = [
+            buildone('apples', 1),
+            buildone('grapes', 1),
+            buildone('peppers', 2),
+            buildone('pizza', 2),
+            buildone('pears', 3),
+            buildone('bread', 4),
         ]
         return items
 

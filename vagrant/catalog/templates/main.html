@@ -16,7 +16,13 @@
         <div class="col-3">
             <div class="row p-1 font-weight-bolder themed-grid-col">Categories</div>
             {% for category in result.categories %}
-                <div class="row p-1 font-weight-normal themed-grid-col">{{ category.name }}</div>
+                {% if result.category == category.name %}
+                    <div class="row p-1 font-weight-bolder themed-grid-col">
+                {% else %}
+                    <div class="row p-1 font-weight-normal themed-grid-col">
+                {% endif %}
+                        <a href="/{{ category.name }}">{{ category.name }}</a>
+                    </div>
             {% endfor %}
         </div>
         <div class="col-8">
