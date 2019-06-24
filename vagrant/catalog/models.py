@@ -66,12 +66,13 @@ class Item(Base):
     categoryid = Column(Integer)
     name = Column(String)
     description = Column(String)
-    create_date = Column(DateTime, default=datetime.utcnow)
+    create_date = Column(DateTime)
 
     @property
     def serialize(self):
         """Return object data in easily serializeable format"""
         return {
+            'id': self.id,
             'categoryid': self.categoryid,
             'name': self.name,
             'description': self.description,
@@ -92,29 +93,31 @@ class Sample:
         return items
 
     def item(self):
-        def buildone(name,categoryid,desc='', offset=0):
+        def buildone(name,categoryid, create_date):
             return {'name':name, 'categoryid':categoryid, \
                     'description': getdesc(), \
-                    'create_date': getdatetime(offset)
+                    'create_date': create_date
                     }
 
         def getdesc():
             link = "https://loripsum.net/api/1/medium/plaintext"
             f = urllib.urlopen(link)
-            result = f.read()
+            result = f.read().decode("utf8", "ignore")
             return result
 
         def getdatetime(offset):
-            dt = datetime.now() +  timedelta(seconds=offset)
+
+            dt = datetime.now() -  timedelta(days=offset)
+            print dt
             return dt
 
         items = [
-            buildone('apples', 1),
-            buildone('grapes', 1, offset=100),
-            buildone('peppers', 2, offset=1000),
-            buildone('pizza', 2, offset=1500),
-            buildone('pears', 3, offset=300),
-            buildone('bread', 4, offset=600),
+            buildone('apples', 1, getdatetime(0)),
+            buildone('grapes', 1, getdatetime(1)),
+            buildone('peppers', 2, getdatetime(10)),
+            buildone('pizza', 2, getdatetime(15)),
+            buildone('pears', 3, getdatetime(30)),
+            buildone('bread', 4, getdatetime(60))
         ]
         return items
 
