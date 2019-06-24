@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request, redirect, url_for
+from flask import Flask, jsonify, render_template, request, redirect, url_for, escape
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
@@ -31,7 +31,7 @@ def main_itemid(itemid):
 
 @app.route('/edit/<itemid>', methods=['GET'])
 def main_edit_itemid(itemid):
-    return homepage_content(request, itemid=itemid, edit_item=1)
+    return edit_item_content(request, itemid=itemid )
 
 @app.route('/save', methods=['POST'])
 def item_save():
@@ -39,14 +39,17 @@ def item_save():
     # find record based on form data.
     #
     # db.update(table_name).values(attribute = new_value).where(condition)
+    this_name = escape(request.form['item_name'])
     this_id = request.form['item_id']
-    this_desc = request.form['item_text']
+    this_desc = escape(request.form['item_text'])
+    this_cat = request.form['item_cat']
 
     for record in session.query(Item).filter_by(id=this_id).all():
         record.description = this_desc
+        record.name = this_name
+        record.categoryid = this_cat
     session.commit()
-
-    print 'id:' + str(this_id)
+    session.close()
 
     new_url = '/item/' + str(this_id)
     return redirect(new_url)
@@ -78,6 +81,16 @@ def homepage_content(request, catid='', itemid=0, edit_item=0):
 
     return render_template("main.html", result=data)
 
+def edit_item_content(request, itemid=0):
+    data = request.form
+    data.title = 'Edit Item'
+    cat_list = api_categories()
+    item_detail = api_one_item(itemid)
+    data.categories = cat_list.json
+    data.item = item_detail.json
+
+    return render_template("edit_item.html", data=data)
+
 
 @app.route('/api/v1/categories')
 @app.route('/api/v1/categories/<catid>')
@@ -98,6 +111,7 @@ def api_categories(catid=''):
         recs = session.query(Category).all()
 
     json_records = [r.serialize for r in recs]
+    session.close()
     return jsonify( json_records )
 
 @app.route('/api/v1/items')
@@ -145,6 +159,7 @@ def api_items(sortby='', category=''):
         recs = session.query(Item).all()
 
     json_records = [r.serialize for r in recs]
+    session.close()
     return jsonify( json_records )
 
 @app.route('/api/v1/items/<itemid>')
@@ -152,6 +167,7 @@ def api_one_item(itemid):
     # noinspection PyBroadException
     try:
         one_record = session.query(Item).filter_by(id=itemid).one()
+        session.close()
         return jsonify( one_record.serialize )
     except :
         return jsonify( {} )

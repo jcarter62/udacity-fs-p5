@@ -7,11 +7,8 @@
 </head>
 <body>
 {% include 'top.html' %}
-
 <div>&nbsp;</div>
-
 <div class="container">
-
     <div class="row table-light">
         <div class="col-3">
             <div class="row p-1 font-weight-bolder themed-grid-col">Categories</div>
@@ -29,11 +26,11 @@
         <div class="col-8">
             <!-- result.show_item = {{ result.show_item }} -->
             {% if result.show_item == 1 %}
-                <div class="row p-1 font-weight-normal themed-grid-col">{{ result.item.name }}</div>
+{#                <div class="row p-1 font-weight-normal themed-grid-col">{{ result.item.name }}</div>#}
                 {% if (result.edit_item == 1) %}
                     <form action="/save" method="post">
                         <div class="row">
-                            <input type="hidden" name="item_id" value="{{ result.item.id }}" />
+                            <input type="text" name="item_name" value="{{ result.item.name }}" />
                         </div>
                         <div class="row">
                             <textarea name="item_text" rows="10" cols="60">{{ result.item.description }}</textarea>
@@ -41,8 +38,10 @@
                         <div class="row">
                             <button class="btn btn-primary" role="button" type="submit">Save</button>
                         </div>
+                        <input type="hidden" name="item_id" value="{{ result.item.id }}" />
                     </form>
                 {% else %}
+                    <div class="row p-1 font-weight-normal themed-grid-col">{{ result.item.name }}</div>
                     <div class="row p-1 font-weight-normal themed-grid-col">{{ result.item.description }}</div>
                     <div class="row p-1">
                         <a class="btn btn-primary" href="/edit/{{ result.item.id }}" role="button">Edit</a>
