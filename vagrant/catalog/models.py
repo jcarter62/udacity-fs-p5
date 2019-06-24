@@ -56,6 +56,7 @@ class Category(Base):
     def serialize(self):
         """Return object data in easily serializeable format"""
         return {
+            'id': self.id,
             'name': self.name,
             'description': self.description
         }
@@ -100,7 +101,7 @@ class Sample:
                     }
 
         def getdesc():
-            link = "https://loripsum.net/api/1/medium/plaintext"
+            link = "https://loripsum.net/api/1/short/plaintext"
             f = urllib.urlopen(link)
             result = f.read().decode("utf8", "ignore")
             return result
@@ -112,12 +113,16 @@ class Sample:
             return dt
 
         items = [
-            buildone('apples', 1, getdatetime(0)),
-            buildone('grapes', 1, getdatetime(1)),
-            buildone('peppers', 2, getdatetime(10)),
-            buildone('pizza', 2, getdatetime(15)),
-            buildone('pears', 3, getdatetime(30)),
-            buildone('bread', 4, getdatetime(60))
+            buildone('stick', 1, getdatetime(0)),
+            buildone('Shinguards', 1, getdatetime(1)),
+            buildone('Goggles', 2, getdatetime(10)),
+            buildone('Frisbee', 2, getdatetime(15)),
+            buildone('Jersey', 3, getdatetime(7)),
+            buildone('Soccer Cleates', 3, getdatetime(2)),
+            buildone('Bat', 4, getdatetime(6)),
+            buildone('Glove', 4, getdatetime(8)),
+            buildone('Hat', 5, getdatetime(5)),
+            buildone('Jacket', 5, getdatetime(2.5))
         ]
         return items
 

@@ -66,6 +66,7 @@ def homepage_content(request, catid='', itemid=0, edit_item=0):
     data.category = catid
     data.categories = cat_list.json
     data.items = item_list.json
+    data.items_count = data.items.__len__()
     one_item = item_detail.json
 
     if is_not_empty(one_item):
@@ -104,14 +105,17 @@ def api_items(sortby='', category=''):
     def cmpdatedec(a,b):
         aval = a.create_date
         bval = b.create_date
-        if aval > bval:
+        if aval < bval:
             return 1
-        elif aval < bval:
+        elif aval > bval:
             return -1
         return 0
 
+    all_records = True
     selected_id = 0
-    if category != '':
+    category_specified = (category.__len__() > 0)
+
+    if category_specified:
         # See if we have this type of category
         catrec = session.query(Category).filter_by(name=category).one()
         if catrec:
@@ -120,16 +124,17 @@ def api_items(sortby='', category=''):
             selected_id = 0
 
 
-    if selected_id <= 0:
+    if selected_id == 0:
         recs = session.query(Item).all()
     else:
+        all_records = False
         recs = session.query(Item).filter_by(categoryid=selected_id).all()
 
     if sortby=='date desc':
         recs.sort(cmp=cmpdatedec)
 
     # Create sample data if empty
-    if recs == []:
+    if all_records and (recs == []):
         sample = Sample()
         for eachRec in sample.item():
             rec = Item(name=eachRec['name'], categoryid=eachRec['categoryid'], \

@@ -49,10 +49,19 @@
                     </div>
                 {% endif %}
             {% else %}
-                <div class="row p-1 font-weight-bolder themed-grid-col">Latest Items</div>
+                <div class="row p-1 font-weight-bolder themed-grid-col">
+                   {% if result.category == '' %}
+                        Latest Items
+                   {% else %}
+                        {{ result.category }} ({{ result.items_count }} Items)
+                   {% endif %}
+                </div>
                 {% for item in result.items %}
                     <div class="row p-1 font-weight-normal themed-grid-col">
-                        <a href="/item/{{ item.id }}">{{ item.name }}</a>: {{ item.create_date }}
+                        <a href="/item/{{ item.id }}">{{ item.name }}</a>
+                        {% if result.category == '' %}
+                            &nbsp;-&nbsp;<i>{{ result.categories[item['categoryid'] - 1]['name'] }}</i>
+                        {% endif %}
                   </div>
                 {% endfor %}
             {% endif %}
