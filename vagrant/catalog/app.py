@@ -6,6 +6,7 @@ from flask_httpauth import HTTPBasicAuth
 
 from models import Base, User, Item, Category, DBName, Sample
 import json
+import datetime
 
 auth = HTTPBasicAuth()
 
@@ -81,15 +82,15 @@ def item_add():
         # this_id = request.form['item_id']
         this_desc = escape(request.form['item_text'])
         this_cat = request.form['item_cat']
+        this_create_date = datetime.datetime.now()
 
-        record = Item(categoryid=this_cat, description=this_desc, name=this_name)
+        record = Item(categoryid=this_cat, description=this_desc,\
+                      name=this_name, create_date=this_create_date)
         session.add(record)
         session.commit()
-        print record.id
         session.close()
 
-        new_url = '/'
-        return redirect(new_url)
+        return homepage_content(request)
     elif request.method == 'GET':
         cat_list = api_categories()
 
@@ -154,6 +155,9 @@ def item_delete_content(request, itemid=0):
     return render_template("item_delete.html", data=data)
 
 
+#
+# API Routes
+#
 
 @app.route('/api/v1/categories')
 @app.route('/api/v1/categories/<catid>')
@@ -179,14 +183,6 @@ def api_categories(catid=''):
 
 @app.route('/api/v1/items')
 def api_items(sortby='', category=''):
-    def cmpdatedec(a,b):
-        aval = a.create_date
-        bval = b.create_date
-        if aval < bval:
-            return 1
-        elif aval > bval:
-            return -1
-        return 0
 
     all_records = True
     selected_id = 0
@@ -207,9 +203,6 @@ def api_items(sortby='', category=''):
         all_records = False
         recs = session.query(Item).filter_by(categoryid=selected_id).all()
 
-    if sortby=='date desc':
-        recs.sort(cmp=cmpdatedec)
-
     # Create sample data if empty
     if all_records and (recs == []):
         sample = Sample()
@@ -223,6 +216,22 @@ def api_items(sortby='', category=''):
 
     json_records = [r.serialize for r in recs]
     session.close()
+
+    def cmpdatedec(a,b):
+        try:
+            aval = a.create_date
+            bval = b.create_date
+            if aval < bval:
+                return 1
+            elif aval > bval:
+                return -1
+            return 0
+        except:
+            return 0
+
+    if sortby=='date desc':
+        recs.sort(cmp=cmpdatedec)
+
     return jsonify( json_records )
 
 @app.route('/api/v1/items/<itemid>')
