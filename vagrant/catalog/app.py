@@ -225,6 +225,9 @@ def api_items(sortby='', category=''):
     json_records = [r.serialize for r in recs]
     session.close()
 
+    for j in json_records:
+        j['fmtdate'] = j['create_date'].__format__('%m/%d/%Y %H:%M')
+
     def cmpdatedec(a, b):
         try:
             aval = a.create_date
@@ -249,6 +252,9 @@ def api_one_item(itemid):
     try:
         one_record = session.query(Item).filter_by(id=itemid).one()
         session.close()
+        #
+        # one_record['fmtdate'] = one_record['create_date'].__format__('%m/%d/%Y %H:%M')
+        #
         return jsonify(one_record.serialize)
     except:
         return jsonify({})

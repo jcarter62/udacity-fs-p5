@@ -62,6 +62,8 @@
                         <a href="/item/{{ item.id }}">{{ item.name }}</a>
                         {% if result.category == '' %}
                             &nbsp;-&nbsp;<i>{{ result.categories[item['categoryid'] - 1]['name'] }}</i>
+                        {% else %}
+                             - {{  item['fmtdate'] }}
                         {% endif %}
                   </div>
                 {% endfor %}
