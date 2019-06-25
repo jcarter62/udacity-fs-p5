@@ -31,7 +31,11 @@ def main_itemid(itemid):
 
 @app.route('/edit/<itemid>', methods=['GET'])
 def main_edit_itemid(itemid):
-    return edit_item_content(request, itemid=itemid )
+    return item_edit_content(request, itemid=itemid)
+
+@app.route('/delete/<itemid>', methods=['GET'])
+def main_delete_itemid(itemid):
+    return item_delete_content(request, itemid=itemid)
 
 @app.route('/save', methods=['POST'])
 def item_save():
@@ -53,6 +57,54 @@ def item_save():
 
     new_url = '/item/' + str(this_id)
     return redirect(new_url)
+
+@app.route('/delete', methods=['POST'])
+def item_delete():
+    #
+    # find record based on form data.
+    #
+    this_id = request.form['item_id']
+
+    for record in session.query(Item).filter_by(id=this_id).all():
+        session.delete(record)
+    session.commit()
+    session.close()
+
+    new_url = '/'
+    return redirect(new_url)
+
+
+@app.route('/add', methods=['POST','GET'])
+def item_add():
+    if request.method == 'POST':
+        this_name = escape(request.form['item_name'])
+        # this_id = request.form['item_id']
+        this_desc = escape(request.form['item_text'])
+        this_cat = request.form['item_cat']
+
+        record = Item(categoryid=this_cat, description=this_desc, name=this_name)
+        session.add(record)
+        session.commit()
+        print record.id
+        session.close()
+
+        new_url = '/'
+        return redirect(new_url)
+    elif request.method == 'GET':
+        cat_list = api_categories()
+
+        data = {
+            'title': 'Add Item',
+            'categories': cat_list.json,
+            'item': {
+                'name': '',
+                'categoryid': 0,
+                'description': ''
+            }
+        }
+
+        return render_template("item_add.html", data=data)
+
 
 def homepage_content(request, catid='', itemid=0, edit_item=0):
     def is_not_empty(any_structure):
@@ -81,7 +133,7 @@ def homepage_content(request, catid='', itemid=0, edit_item=0):
 
     return render_template("main.html", result=data)
 
-def edit_item_content(request, itemid=0):
+def item_edit_content(request, itemid=0):
     data = request.form
     data.title = 'Edit Item'
     cat_list = api_categories()
@@ -89,7 +141,18 @@ def edit_item_content(request, itemid=0):
     data.categories = cat_list.json
     data.item = item_detail.json
 
-    return render_template("edit_item.html", data=data)
+    return render_template("item_edit.html", data=data)
+
+def item_delete_content(request, itemid=0):
+    data = request.form
+    data.title = 'Delete Item'
+    cat_list = api_categories()
+    item_detail = api_one_item(itemid)
+    data.categories = cat_list.json
+    data.item = item_detail.json
+
+    return render_template("item_delete.html", data=data)
+
 
 
 @app.route('/api/v1/categories')

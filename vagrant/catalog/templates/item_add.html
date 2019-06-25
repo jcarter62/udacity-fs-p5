@@ -13,16 +13,16 @@
         <div class="col-1"></div>
         <div class="col-10">
 
-            <div class="row"><strong>Edit Item</strong></div>
+            <div class="row"><strong>{{ data.title }}</strong></div>
             <form action="/save" method="post">
                 <div class="row">
                     <div class="col-2">Name:</div>
-                    <div class="col-10"><input type="text" name="item_name" value="{{ data.item.name }}"/></div>
+                    <div class="col-8"><input type="text" name="item_name" value="{{ data.item.name }}"/></div>
                 </div>
-
+                <br>
                 <div class="row">
                     <div class="col-2">Category:</div>
-                    <div class="col-10">
+                    <div class="col-8">
                     <select name="item_cat" >
                         {% for cat in data.categories %}
                             {% if cat.id == data.item.categoryid %}
@@ -35,22 +35,19 @@
                     </select>
                     </div>
                 </div>
-
-
+                <br>
                 <div class="row">
                     <div class="col-2">Description:</div>
-                    <div class="col-10">
-                        <textarea name="item_text" rows="10" cols="100%">{{ data.item.description }}</textarea>
-                    </div>
+                    <textarea class="col-8" name="item_text" rows="10" cols="60%">
+                        {{ data.item.description }}
+                    </textarea>
                 </div>
-
-
-                <input type="hidden" name="item_id" value="{{ data.item.id }}"/>
-
+                <br>
                 <div class="row">
+                    <div class="col-2"></div>
                     <button class="btn btn-primary" role="button" type="submit">Save</button>
                 </div>
-
+                <input type="hidden" name="item_id" value="{{ data.item.id }}"/>
             </form>
         </div>
         <div class="col-1"></div>

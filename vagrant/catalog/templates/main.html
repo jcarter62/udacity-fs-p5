@@ -45,6 +45,8 @@
                     <div class="row p-1 font-weight-normal themed-grid-col">{{ result.item.description }}</div>
                     <div class="row p-1">
                         <a class="btn btn-primary" href="/edit/{{ result.item.id }}" role="button">Edit</a>
+                        &nbsp;&nbsp;
+                        <a class="btn btn-danger" href="/delete/{{ result.item.id }}" role="button">Delete</a>
                     </div>
                 {% endif %}
             {% else %}
