@@ -22,21 +22,26 @@ app = Flask(__name__)
 def main():
     return homepage_content(request)
 
+
 @app.route('/<categoryid>', methods=['GET'])
 def main_catid(categoryid):
     return homepage_content(request, catid=categoryid)
+
 
 @app.route('/item/<itemid>', methods=['GET'])
 def main_itemid(itemid):
     return homepage_content(request, itemid=itemid)
 
+
 @app.route('/edit/<itemid>', methods=['GET'])
 def main_edit_itemid(itemid):
     return item_edit_content(request, itemid=itemid)
 
+
 @app.route('/delete/<itemid>', methods=['GET'])
 def main_delete_itemid(itemid):
     return item_delete_content(request, itemid=itemid)
+
 
 @app.route('/save', methods=['POST'])
 def item_save():
@@ -59,11 +64,13 @@ def item_save():
     new_url = '/item/' + str(this_id)
     return redirect(new_url)
 
+
 @app.route('/delete', methods=['POST'])
 def item_delete():
     #
     # find record based on form data.
     #
+    #TODO: handle invalid item_id
     this_id = request.form['item_id']
 
     for record in session.query(Item).filter_by(id=this_id).all():
@@ -75,7 +82,7 @@ def item_delete():
     return redirect(new_url)
 
 
-@app.route('/add', methods=['POST','GET'])
+@app.route('/add', methods=['POST', 'GET'])
 def item_add():
     if request.method == 'POST':
         this_name = escape(request.form['item_name'])
@@ -84,7 +91,7 @@ def item_add():
         this_cat = request.form['item_cat']
         this_create_date = datetime.datetime.now()
 
-        record = Item(categoryid=this_cat, description=this_desc,\
+        record = Item(categoryid=this_cat, description=this_desc, \
                       name=this_name, create_date=this_create_date)
         session.add(record)
         session.commit()
@@ -134,6 +141,7 @@ def homepage_content(request, catid='', itemid=0, edit_item=0):
 
     return render_template("main.html", result=data)
 
+
 def item_edit_content(request, itemid=0):
     data = request.form
     data.title = 'Edit Item'
@@ -143,6 +151,7 @@ def item_edit_content(request, itemid=0):
     data.item = item_detail.json
 
     return render_template("item_edit.html", data=data)
+
 
 def item_delete_content(request, itemid=0):
     data = request.form
@@ -179,11 +188,11 @@ def api_categories(catid=''):
 
     json_records = [r.serialize for r in recs]
     session.close()
-    return jsonify( json_records )
+    return jsonify(json_records)
+
 
 @app.route('/api/v1/items')
 def api_items(sortby='', category=''):
-
     all_records = True
     selected_id = 0
     category_specified = (category.__len__() > 0)
@@ -195,7 +204,6 @@ def api_items(sortby='', category=''):
             selected_id = catrec.id
         else:
             selected_id = 0
-
 
     if selected_id == 0:
         recs = session.query(Item).all()
@@ -217,7 +225,7 @@ def api_items(sortby='', category=''):
     json_records = [r.serialize for r in recs]
     session.close()
 
-    def cmpdatedec(a,b):
+    def cmpdatedec(a, b):
         try:
             aval = a.create_date
             bval = b.create_date
@@ -229,10 +237,11 @@ def api_items(sortby='', category=''):
         except:
             return 0
 
-    if sortby=='date desc':
+    if sortby == 'date desc':
         recs.sort(cmp=cmpdatedec)
 
-    return jsonify( json_records )
+    return jsonify(json_records)
+
 
 @app.route('/api/v1/items/<itemid>')
 def api_one_item(itemid):
@@ -240,9 +249,10 @@ def api_one_item(itemid):
     try:
         one_record = session.query(Item).filter_by(id=itemid).one()
         session.close()
-        return jsonify( one_record.serialize )
-    except :
-        return jsonify( {} )
+        return jsonify(one_record.serialize)
+    except:
+        return jsonify({})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
