@@ -32,12 +32,11 @@ def login():
             'title': 'Login',
             'user_name': '',
             'user_password': '',
-            'logged_in': user_logged_in(request)
+            'logged_in': user_logged_in(request),
+            'message':''
         }
         return render_template("login.html", data=data)
     else: # POST
-        print request.form['user_name']
-        print request.form['user_password']
         #
         # Validate User & Password, or by other method
         #
@@ -49,27 +48,36 @@ def logout():
     wipe_session()
     return redirect('/')
 
-@app.route('/<categoryid>', methods=['GET'])
+@app.route('/category/<categoryid>', methods=['GET'])
 def main_catid(categoryid):
     return homepage_content(request, catid=categoryid)
 
 
-@app.route('/item/<itemid>', methods=['GET'])
+@app.route('/item/delete_fail')
+def item_delete_failed_noid():
+    msg = 'Item Delete Failed'
+    return homepage_content(request, message=msg)
+
+@app.route('/item/delete_fail/<int:itemid>')
+def item_delete_failed(itemid=0):
+    msg = 'Item Delete Failed for id:' + str(itemid)
+    return homepage_content(request, message=msg)
+
+@app.route('/item/<int:itemid>', methods=['GET'])
 def main_itemid(itemid):
     return homepage_content(request, itemid=itemid)
 
-
-@app.route('/edit/<itemid>', methods=['GET'])
+@app.route('/edit/<int:itemid>', methods=['GET'])
 def main_edit_itemid(itemid):
     return item_edit_content(request, itemid=itemid)
 
 
-@app.route('/delete/<itemid>', methods=['GET'])
+@app.route('/delete/<int:itemid>', methods=['GET'])
 def main_delete_itemid(itemid):
     return item_delete_content(request, itemid=itemid)
 
 
-@app.route('/save', methods=['POST'])
+@app.route('/item/save', methods=['POST'])
 def item_save():
     #
     # find record based on form data.
@@ -100,13 +108,19 @@ def item_delete():
     #TODO: handle invalid item_id
     this_id = request.form['item_id']
 
+    new_url = '/'
+
     session = Session()
-    for record in session.query(Item).filter_by(id=this_id).all():
-        session.delete(record)
-    session.commit()
+    record_count = session.query(Item).filter_by(id=this_id).count()
+    if record_count == 1:
+        for record in session.query(Item).filter_by(id=this_id).all():
+            session.delete(record)
+        session.commit()
+    else:
+        new_url = '/item/delete_fail/' + str(this_id)
+
     session.close()
 
-    new_url = '/'
     return redirect(new_url)
 
 
@@ -138,12 +152,13 @@ def item_add():
                 'categoryid': 0,
                 'description': ''
             },
-            'logged_in': user_logged_in(request)
+            'logged_in': user_logged_in(request),
+            'message': ''
         }
         return render_template("item_add.html", data=data)
 
 
-def homepage_content(request, catid='', itemid=0, edit_item=0):
+def homepage_content(request, catid='', itemid=0, edit_item=0, message=''):
     def is_not_empty(any_structure):
         if any_structure:
             return True
@@ -174,6 +189,7 @@ def homepage_content(request, catid='', itemid=0, edit_item=0):
     except:
         data.logged_in = False
     data.session = get_session_info(request)
+    data.message = message
 
     return render_template("main.html", data=data)
 
@@ -186,6 +202,7 @@ def item_edit_content(request, itemid=0):
     data.categories = cat_list.json
     data.item = item_detail.json
     data.logged_in = user_logged_in(request)
+    data.message = ''
     return render_template("item_edit.html", data=data)
 
 
@@ -197,6 +214,7 @@ def item_delete_content(request, itemid=0):
     data.categories = cat_list.json
     data.item = item_detail.json
     data.logged_in = user_logged_in(request)
+    data.message = ''
     return render_template("item_delete.html", data=data)
 
 
@@ -212,7 +230,6 @@ def user_logged_in(request):
     except:
         flask_session['loggedIn'] = 'no'
 
-    print 'user logged in: ' + flask_session['loggedIn']
     return logged_in
 
 def get_session_info(request):
@@ -239,6 +256,8 @@ def get_session_info(request):
     return session_info
 
 def wipe_session():
+    if 'logged_in' in flask_session:
+        flask_session.pop('logged_in', None)
     if 'username' in flask_session:
         flask_session.pop('username', None)
     if 'sid' in flask_session:

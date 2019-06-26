@@ -18,7 +18,7 @@
                 {% else %}
                     <div class="row p-1 font-weight-normal themed-grid-col">
                 {% endif %}
-                        <a href="/{{ category.name }}">{{ category.name }}</a>
+                        <a href="/category/{{ category.name }}">{{ category.name }}</a>
                     </div>
             {% endfor %}
         </div>
@@ -44,9 +44,10 @@
                     <div class="row p-1 font-weight-normal themed-grid-col">{{ data.item.name }}</div>
                     <div class="row p-1 font-weight-normal themed-grid-col">{{ data.item.description }}</div>
                     <div class="row p-1">
-                        <a class="btn btn-primary" href="/edit/{{ data.item.id }}" role="button">Edit</a>
-                        &nbsp;&nbsp;
-                        <a class="btn btn-danger" href="/delete/{{ data.item.id }}" role="button">Delete</a>
+                        {%  if data.logged_in %}
+                            <a class="btn btn-primary" href="/edit/{{ data.item.id }}" role="button">Edit</a>
+                            <a class="btn btn-danger" href="/delete/{{ data.item.id }}" role="button">Delete</a>
+                        {% endif %}
                     </div>
                 {% endif %}
             {% else %}

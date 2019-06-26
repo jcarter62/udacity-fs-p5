@@ -2,7 +2,9 @@
 <footer class="footer ">
   <div class="container">
       <span>
-          <a class="btn btn-primary" href="/add" role="button">Add Item</a>
+          {% if data.logged_in %}
+              <a class="btn btn-primary" href="/add" role="button">Add Item</a>
+          {% endif %}
       </span>
   </div>
 </footer>
