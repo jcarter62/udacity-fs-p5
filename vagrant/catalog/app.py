@@ -1,3 +1,5 @@
+import uuid
+
 from flask import Flask, jsonify, render_template, request, redirect, url_for, escape, session as flask_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -13,14 +15,13 @@ auth = HTTPBasicAuth()
 engine = create_engine(DBName)
 
 Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+Session = sessionmaker(bind=engine)
+# Session = DBSession()
 app = Flask(__name__)
 app.secret_key = 'this is a secret key'
 
 @app.route('/', methods=['GET'])
 def main():
-    user_logged_in(request)
     return homepage_content(request)
 
 
@@ -34,45 +35,42 @@ def login():
             'logged_in': user_logged_in(request)
         }
         return render_template("login.html", data=data)
-    else:
-
+    else: # POST
         print request.form['user_name']
         print request.form['user_password']
+        #
+        # Validate User & Password, or by other method
+        #
         flask_session['username'] = request.form['user_name']
         return redirect('/')
 
 @app.route('/logout')
 def logout():
-    flask_session.pop('username', None)
+    wipe_session()
     return redirect('/')
 
 @app.route('/<categoryid>', methods=['GET'])
 def main_catid(categoryid):
-    user_logged_in(request)
     return homepage_content(request, catid=categoryid)
 
 
 @app.route('/item/<itemid>', methods=['GET'])
 def main_itemid(itemid):
-    user_logged_in(request)
     return homepage_content(request, itemid=itemid)
 
 
 @app.route('/edit/<itemid>', methods=['GET'])
 def main_edit_itemid(itemid):
-    user_logged_in(request)
     return item_edit_content(request, itemid=itemid)
 
 
 @app.route('/delete/<itemid>', methods=['GET'])
 def main_delete_itemid(itemid):
-    user_logged_in(request)
     return item_delete_content(request, itemid=itemid)
 
 
 @app.route('/save', methods=['POST'])
 def item_save():
-    user_logged_in(request)
     #
     # find record based on form data.
     #
@@ -82,6 +80,7 @@ def item_save():
     this_desc = escape(request.form['item_text'])
     this_cat = request.form['item_cat']
 
+    session = Session()
     for record in session.query(Item).filter_by(id=this_id).all():
         record.description = this_desc
         record.name = this_name
@@ -95,13 +94,13 @@ def item_save():
 
 @app.route('/delete', methods=['POST'])
 def item_delete():
-    user_logged_in(request)
     #
     # find record based on form data.
     #
     #TODO: handle invalid item_id
     this_id = request.form['item_id']
 
+    session = Session()
     for record in session.query(Item).filter_by(id=this_id).all():
         session.delete(record)
     session.commit()
@@ -113,16 +112,16 @@ def item_delete():
 
 @app.route('/add', methods=['POST', 'GET'])
 def item_add():
-    user_logged_in(request)
     if request.method == 'POST':
         this_name = escape(request.form['item_name'])
-        # this_id = request.form['item_id']
         this_desc = escape(request.form['item_text'])
         this_cat = request.form['item_cat']
         this_create_date = datetime.datetime.now()
 
         record = Item(categoryid=this_cat, description=this_desc, \
                       name=this_name, create_date=this_create_date)
+
+        session = Session()
         session.add(record)
         session.commit()
         session.close()
@@ -138,9 +137,9 @@ def item_add():
                 'name': '',
                 'categoryid': 0,
                 'description': ''
-            }
+            },
+            'logged_in': user_logged_in(request)
         }
-        data.logged_in = user_logged_in(request)
         return render_template("item_add.html", data=data)
 
 
@@ -169,7 +168,12 @@ def homepage_content(request, catid='', itemid=0, edit_item=0):
     else:
         data.show_item = 0
 
-    data.logged_in = user_logged_in(request)
+    # noinspection PyBroadException
+    try:
+        data.logged_in = user_logged_in(request)
+    except:
+        data.logged_in = False
+    data.session = get_session_info(request)
 
     return render_template("main.html", data=data)
 
@@ -207,8 +211,39 @@ def user_logged_in(request):
             flask_session['loggedIn'] = 'no'
     except:
         flask_session['loggedIn'] = 'no'
+
+    print 'user logged in: ' + flask_session['loggedIn']
     return logged_in
 
+def get_session_info(request):
+    def new_sid():
+        guid = str(uuid.uuid4()).replace('-','')
+        return guid
+
+    if 'sid' in flask_session:
+        sid = flask_session['sid']
+    else:
+        sid = new_sid()
+        flask_session['sid'] = sid
+
+    username = ''
+    if 'username' in flask_session:
+        username = flask_session['username']
+
+    session_info = {
+        'logged_in': user_logged_in(request),
+        'username': username,
+        'sid': sid
+    }
+    print 'Session Info: ' + json.dumps(session_info)
+    return session_info
+
+def wipe_session():
+    if 'username' in flask_session:
+        flask_session.pop('username', None)
+    if 'sid' in flask_session:
+        flask_session.pop('sid', None)
+    return
 
 #
 # API Routes
@@ -218,13 +253,18 @@ def user_logged_in(request):
 @app.route('/api/v1/categories/<catid>')
 def api_categories(catid=''):
     recs = []
-    if catid == '':
-        recs = session.query(Category).all()
-    else:
-        recs = session.query(Category).filter_by(name=catid)
+
+    session = Session()
+    try:
+        if catid == '':
+            recs = session.query(Category).all()
+        else:
+            recs = session.query(Category).filter_by(name=catid)
+    except Exception, e:
+        print 'API_Categories Error: ' + str(e)
 
     # Create sample data if empty
-    if recs == []:
+    if not recs:
         sample = Sample()
         for eachRec in sample.category():
             rec = Category(name=eachRec['name'], description=eachRec['description'])
@@ -243,6 +283,7 @@ def api_items(sortby='', category=''):
     selected_id = 0
     category_specified = (category.__len__() > 0)
 
+    session = Session()
     if category_specified:
         # See if we have this type of category
         catrec = session.query(Category).filter_by(name=category).one()
@@ -296,6 +337,7 @@ def api_items(sortby='', category=''):
 def api_one_item(itemid):
     # noinspection PyBroadException
     try:
+        session = Session()
         one_record = session.query(Item).filter_by(id=itemid).one()
         session.close()
         #
