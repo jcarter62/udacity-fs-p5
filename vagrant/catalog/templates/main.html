@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ result.title }}</title>
+    <title>{{ data.title }}</title>
     {% include 'includes.html' %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
@@ -12,8 +12,8 @@
     <div class="row table-light">
         <div class="col-3">
             <div class="row p-1 font-weight-bolder themed-grid-col">Categories</div>
-            {% for category in result.categories %}
-                {% if result.category == category.name %}
+            {% for category in data.categories %}
+                {% if data.category == category.name %}
                     <div class="row p-1 font-weight-bolder themed-grid-col">
                 {% else %}
                     <div class="row p-1 font-weight-normal themed-grid-col">
@@ -24,44 +24,44 @@
         </div>
 
         <div class="col-8">
-            <!-- result.show_item = {{ result.show_item }} -->
-            {% if result.show_item == 1 %}
-{#                <div class="row p-1 font-weight-normal themed-grid-col">{{ result.item.name }}</div>#}
-                {% if (result.edit_item == 1) %}
+            <!-- data.show_item = {{ data.show_item }} -->
+            {% if data.show_item == 1 %}
+{#                <div class="row p-1 font-weight-normal themed-grid-col">{{ data.item.name }}</div>#}
+                {% if (data.edit_item == 1) %}
                     <form action="/save" method="post">
                         <div class="row">
-                            <input type="text" name="item_name" value="{{ result.item.name }}" />
+                            <input type="text" name="item_name" value="{{ data.item.name }}" />
                         </div>
                         <div class="row">
-                            <textarea name="item_text" rows="10" cols="60">{{ result.item.description }}</textarea>
+                            <textarea name="item_text" rows="10" cols="60">{{ data.item.description }}</textarea>
                         </div>
                         <div class="row">
                             <button class="btn btn-primary" role="button" type="submit">Save</button>
                         </div>
-                        <input type="hidden" name="item_id" value="{{ result.item.id }}" />
+                        <input type="hidden" name="item_id" value="{{ data.item.id }}" />
                     </form>
                 {% else %}
-                    <div class="row p-1 font-weight-normal themed-grid-col">{{ result.item.name }}</div>
-                    <div class="row p-1 font-weight-normal themed-grid-col">{{ result.item.description }}</div>
+                    <div class="row p-1 font-weight-normal themed-grid-col">{{ data.item.name }}</div>
+                    <div class="row p-1 font-weight-normal themed-grid-col">{{ data.item.description }}</div>
                     <div class="row p-1">
-                        <a class="btn btn-primary" href="/edit/{{ result.item.id }}" role="button">Edit</a>
+                        <a class="btn btn-primary" href="/edit/{{ data.item.id }}" role="button">Edit</a>
                         &nbsp;&nbsp;
-                        <a class="btn btn-danger" href="/delete/{{ result.item.id }}" role="button">Delete</a>
+                        <a class="btn btn-danger" href="/delete/{{ data.item.id }}" role="button">Delete</a>
                     </div>
                 {% endif %}
             {% else %}
                 <div class="row p-1 font-weight-bolder themed-grid-col">
-                   {% if result.category == '' %}
+                   {% if data.category == '' %}
                         Latest Items
                    {% else %}
-                        {{ result.category }} ({{ result.items_count }} Items)
+                        {{ data.category }} ({{ data.items_count }} Items)
                    {% endif %}
                 </div>
-                {% for item in result.items %}
+                {% for item in data.items %}
                     <div class="row p-1 font-weight-normal themed-grid-col">
                         <a href="/item/{{ item.id }}">{{ item.name }}</a>
-                        {% if result.category == '' %}
-                            &nbsp;-&nbsp;<i>{{ result.categories[item['categoryid'] - 1]['name'] }}</i>
+                        {% if data.category == '' %}
+                            &nbsp;-&nbsp;<i>{{ data.categories[item['categoryid'] - 1]['name'] }}</i>
                         {% else %}
                              - {{  item['fmtdate'] }}
                         {% endif %}

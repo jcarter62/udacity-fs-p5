@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request, redirect, url_for, escape
+from flask import Flask, jsonify, render_template, request, redirect, url_for, escape, session as flask_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
@@ -16,35 +16,63 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 app = Flask(__name__)
-
+app.secret_key = 'this is a secret key'
 
 @app.route('/', methods=['GET'])
 def main():
+    user_logged_in(request)
     return homepage_content(request)
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        data = {
+            'title': 'Login',
+            'user_name': '',
+            'user_password': '',
+            'logged_in': user_logged_in(request)
+        }
+        return render_template("login.html", data=data)
+    else:
+
+        print request.form['user_name']
+        print request.form['user_password']
+        flask_session['username'] = request.form['user_name']
+        return redirect('/')
+
+@app.route('/logout')
+def logout():
+    flask_session.pop('username', None)
+    return redirect('/')
+
 @app.route('/<categoryid>', methods=['GET'])
 def main_catid(categoryid):
+    user_logged_in(request)
     return homepage_content(request, catid=categoryid)
 
 
 @app.route('/item/<itemid>', methods=['GET'])
 def main_itemid(itemid):
+    user_logged_in(request)
     return homepage_content(request, itemid=itemid)
 
 
 @app.route('/edit/<itemid>', methods=['GET'])
 def main_edit_itemid(itemid):
+    user_logged_in(request)
     return item_edit_content(request, itemid=itemid)
 
 
 @app.route('/delete/<itemid>', methods=['GET'])
 def main_delete_itemid(itemid):
+    user_logged_in(request)
     return item_delete_content(request, itemid=itemid)
 
 
 @app.route('/save', methods=['POST'])
 def item_save():
+    user_logged_in(request)
     #
     # find record based on form data.
     #
@@ -67,6 +95,7 @@ def item_save():
 
 @app.route('/delete', methods=['POST'])
 def item_delete():
+    user_logged_in(request)
     #
     # find record based on form data.
     #
@@ -84,6 +113,7 @@ def item_delete():
 
 @app.route('/add', methods=['POST', 'GET'])
 def item_add():
+    user_logged_in(request)
     if request.method == 'POST':
         this_name = escape(request.form['item_name'])
         # this_id = request.form['item_id']
@@ -110,7 +140,7 @@ def item_add():
                 'description': ''
             }
         }
-
+        data.logged_in = user_logged_in(request)
         return render_template("item_add.html", data=data)
 
 
@@ -139,7 +169,9 @@ def homepage_content(request, catid='', itemid=0, edit_item=0):
     else:
         data.show_item = 0
 
-    return render_template("main.html", result=data)
+    data.logged_in = user_logged_in(request)
+
+    return render_template("main.html", data=data)
 
 
 def item_edit_content(request, itemid=0):
@@ -149,7 +181,7 @@ def item_edit_content(request, itemid=0):
     item_detail = api_one_item(itemid)
     data.categories = cat_list.json
     data.item = item_detail.json
-
+    data.logged_in = user_logged_in(request)
     return render_template("item_edit.html", data=data)
 
 
@@ -160,8 +192,22 @@ def item_delete_content(request, itemid=0):
     item_detail = api_one_item(itemid)
     data.categories = cat_list.json
     data.item = item_detail.json
-
+    data.logged_in = user_logged_in(request)
     return render_template("item_delete.html", data=data)
+
+
+# noinspection PyBroadException
+def user_logged_in(request):
+    logged_in = False
+    try:
+        if 'username' in flask_session:
+            flask_session['loggedIn'] = 'yes'
+            logged_in = True
+        else:
+            flask_session['loggedIn'] = 'no'
+    except:
+        flask_session['loggedIn'] = 'no'
+    return logged_in
 
 
 #

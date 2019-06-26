@@ -4,7 +4,14 @@
         <strong>Catalog App</strong>
       </a>
         <ul class="navbar-nav px-3">
-            <button type="button" class="btn btn-lg btn-block btn-primary">Login</button>
+<!-- Logged_IN = {{ data.logged_in }} -->
+            {% if data.logged_in %}
+                <a type="button" href="/logout" role="button"
+                   class="btn btn-lg btn-block btn-primary">Logout</a>
+            {% else %}
+                <a type="button" href="/login" role="button"
+                   class="btn btn-lg btn-block btn-primary">Login</a>
+            {% endif %}
         </ul>
     </div>
 </div>
