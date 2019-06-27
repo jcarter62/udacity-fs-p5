@@ -89,6 +89,7 @@
               contentType: 'application/octet-stream; charset=utf-8',
               success: function(result) {
                 // Handle or verify the server response if necessary.
+                  console.log('success function'+result);
                 if (result) {
                   $('#result').html('Login Successful!</br>'+ result + '')
                 } else if (authResult['error']) {
@@ -108,10 +109,12 @@
     var auth2;
 
     gapi.load('auth2', function() {
+        console.log('gapi.load auth2 ');
         auth2 = gapi.auth2.init();
     });
 
     function onSignIn() {
+        console.log('onSignIn()');
         var profile = auth2.currentUser.get().getBasicProfile();
         console.log('User logged in.');
         console.log('ID:', profile.getId());
