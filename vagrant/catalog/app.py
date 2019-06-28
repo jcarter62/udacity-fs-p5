@@ -53,11 +53,20 @@ def login():
         flask_session['username'] = request.form['user_name']
         return redirect('/')
 
-@app.route('/oauth/<provider>', methods=['POST'])
-def login_provider(provider):
+@app.route('/login-google', methods=['POST'])
+def login_google():
+    data = request.data
+
+    print data
+    return redirect('/')
+
+
+@app.route('/oauth/google', methods=['POST'])
+def login_provider():
     # STEP 1 - Parse the auth code
-    auth_code = request.json.get('auth_code')
+    auth_code = request.data
     print "Step 1 - Complete, received auth code %s" % auth_code
+    provider = 'google'
     if provider == 'google':
         # STEP 2 - Exchange for a token
         try:
@@ -137,7 +146,7 @@ def login_provider(provider):
 
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET','POST'])
 def logout():
     wipe_session()
     return redirect('/')
