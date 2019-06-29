@@ -28,7 +28,7 @@ app.secret_key = 'this is a secret key'
 
 
 CLIENT_ID = json.loads(
-    open('client_secrets.json', 'r').read())['web']['client_id']
+    open('client_secret.json', 'r').read())['web']['client_id']
 
 @app.route('/', methods=['GET'])
 def main():
@@ -43,7 +43,9 @@ def login():
             'user_name': '',
             'user_password': '',
             'logged_in': user_logged_in(request),
-            'message':''
+            'message':'',
+            'client_id':CLIENT_ID,
+            'session': get_session_info()
         }
         return render_template("login.html", data=data)
     else: # POST
@@ -51,6 +53,7 @@ def login():
         # Validate User & Password, or by other method
         #
         flask_session['username'] = request.form['user_name']
+        flask_session['method'] = 'simple'
         return redirect('/')
 
 @app.route('/login-google', methods=['POST'])
@@ -137,6 +140,12 @@ def login_provider():
         # STEP 4 - Make token
         token = user.generate_auth_token(600)
 
+        flask_session['username'] = user.username
+        flask_session['picture'] = user.picture
+        flask_session['email'] = user.email
+        flask_session['method'] = 'google'
+        flask_session['token'] = token
+
         # STEP 5 - Send back token to the client
         return jsonify({'token': token.decode('ascii')})
 
@@ -145,11 +154,32 @@ def login_provider():
         return 'Unrecoginized Provider'
 
 
-
 @app.route('/logout', methods=['GET','POST'])
 def logout():
     wipe_session()
     return redirect('/')
+
+def get_session_vars():
+    return ['username', 'picture', 'email',
+        'method', 'token', 'loggedIn', 'sid']
+
+def wipe_session():
+    names = get_session_vars()
+    for name in names:
+        if name in flask_session:
+            flask_session.pop(name, None)
+    return
+
+def get_session_info():
+    data = {}
+    names = get_session_vars()
+    for name in names:
+        if name in flask_session:
+            value = flask_session[name]
+        else:
+            value = ''
+        data[name] = value
+    return data
 
 @app.route('/category/<categoryid>', methods=['GET'])
 def main_catid(categoryid):
@@ -256,6 +286,7 @@ def item_add():
                 'description': ''
             },
             'logged_in': user_logged_in(request),
+            'session':get_session_info(),
             'message': ''
         }
         return render_template("item_add.html", data=data)
@@ -291,7 +322,7 @@ def homepage_content(request, catid='', itemid=0, edit_item=0, message=''):
         data.logged_in = user_logged_in(request)
     except:
         data.logged_in = False
-    data.session = get_session_info(request)
+    data.session = get_session_info()
     data.message = message
 
     return render_template("main.html", data=data)
@@ -306,6 +337,8 @@ def item_edit_content(request, itemid=0):
     data.item = item_detail.json
     data.logged_in = user_logged_in(request)
     data.message = ''
+    data.session = get_session_info()
+
     return render_template("item_edit.html", data=data)
 
 
@@ -318,6 +351,7 @@ def item_delete_content(request, itemid=0):
     data.item = item_detail.json
     data.logged_in = user_logged_in(request)
     data.message = ''
+    data.session = get_session_info()
     return render_template("item_delete.html", data=data)
 
 
@@ -335,37 +369,28 @@ def user_logged_in(request):
 
     return logged_in
 
-def get_session_info(request):
-    def new_sid():
-        guid = str(uuid.uuid4()).replace('-','')
-        return guid
-
-    if 'sid' in flask_session:
-        sid = flask_session['sid']
-    else:
-        sid = new_sid()
-        flask_session['sid'] = sid
-
-    username = ''
-    if 'username' in flask_session:
-        username = flask_session['username']
-
-    session_info = {
-        'logged_in': user_logged_in(request),
-        'username': username,
-        'sid': sid
-    }
-    print 'Session Info: ' + json.dumps(session_info)
-    return session_info
-
-def wipe_session():
-    if 'logged_in' in flask_session:
-        flask_session.pop('logged_in', None)
-    if 'username' in flask_session:
-        flask_session.pop('username', None)
-    if 'sid' in flask_session:
-        flask_session.pop('sid', None)
-    return
+# def get_session_info(request):
+#     def new_sid():
+#         guid = str(uuid.uuid4()).replace('-','')
+#         return guid
+#
+#     if 'sid' in flask_session:
+#         sid = flask_session['sid']
+#     else:
+#         sid = new_sid()
+#         flask_session['sid'] = sid
+#
+#     username = ''
+#     if 'username' in flask_session:
+#         username = flask_session['username']
+#
+#     session_info = {
+#         'logged_in': user_logged_in(request),
+#         'username': username,
+#         'sid': sid
+#     }
+#     print 'Session Info: ' + json.dumps(session_info)
+#     return session_info
 
 #
 # API Routes

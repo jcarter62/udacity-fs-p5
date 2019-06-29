@@ -1,11 +1,20 @@
 </main>
 <footer class="footer ">
   <div class="container">
-      <span>
+    <div class="row">
+      <div class="col-3">
           {% if data.logged_in %}
               <a class="btn btn-primary" href="/add" role="button">Add Item</a>
           {% endif %}
-      </span>
+      </div>
+        <div class="col-8">
+            {% if data.session.username > '' %}{{ data.session.username }}{% endif %}
+            {% if data.session.picture > ''  %}
+                <img src="{{ data.session.picture }}" height="50px"/>
+            {% endif %}
+        </div>
+
+    </div>
   </div>
 </footer>
 

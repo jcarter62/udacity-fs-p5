@@ -8,7 +8,7 @@
     <!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id"
-          content="45231638270-spds4iihrqe5meb4rfbu901f4sg6rhbm.apps.googleusercontent.com">
+          content="{{ data.client_id }}">
     <!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
 </head>
 <body>
@@ -65,7 +65,7 @@
         gapi.load('auth2', function () {
             console.log("loaded auth2")
             auth2 = gapi.auth2.init({
-                client_id: '45231638270-spds4iihrqe5meb4rfbu901f4sg6rhbm.apps.googleusercontent.com',
+                client_id: '{{ data.client_id }}',
                 scope: 'profile email'
             });
 
