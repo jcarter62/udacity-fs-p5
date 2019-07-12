@@ -26,9 +26,9 @@ Session = sessionmaker(bind=engine)
 app = Flask(__name__)
 app.secret_key = 'this is a secret key'
 
-
 CLIENT_ID = json.loads(
     open('client_secret.json', 'r').read())['web']['client_id']
+
 
 @app.route('/', methods=['GET'])
 def main():
@@ -43,18 +43,19 @@ def login():
             'user_name': '',
             'user_password': '',
             'logged_in': user_logged_in(request),
-            'message':'',
-            'client_id':CLIENT_ID,
+            'message': '',
+            'client_id': CLIENT_ID,
             'session': get_session_info()
         }
         return render_template("login.html", data=data)
-    else: # POST
+    else:  # POST
         #
         # Validate User & Password, or by other method
         #
         flask_session['username'] = request.form['user_name']
         flask_session['method'] = 'simple'
         return redirect('/')
+
 
 @app.route('/login-google', methods=['POST'])
 def login_google():
@@ -123,6 +124,10 @@ def login_provider():
 
         data = answer.json()
 
+
+        #
+        # TODO: Add client_id, and login_type to user table + flask_session
+        #
         name = data['name']
         picture = data['picture']
         email = data['email']
@@ -154,14 +159,28 @@ def login_provider():
         return 'Unrecoginized Provider'
 
 
-@app.route('/logout', methods=['GET','POST'])
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    wipe_session()
-    return redirect('/')
+    if request.method == 'GET':
+        data = {
+            'title': 'Login',
+            'user_name': '',
+            'user_password': '',
+            'logged_in': user_logged_in(request),
+            'message': '',
+            'client_id': CLIENT_ID,
+            'session': get_session_info()
+        }
+        return render_template("logout.html", data=data)
+    else:
+        # 'POST'
+        wipe_session()
+        return redirect('/')
 
 def get_session_vars():
     return ['username', 'picture', 'email',
-        'method', 'token', 'loggedIn', 'sid']
+            'method', 'token', 'loggedIn', 'sid']
+
 
 def wipe_session():
     names = get_session_vars()
@@ -170,16 +189,14 @@ def wipe_session():
             flask_session.pop(name, None)
     return
 
+
 def get_session_info():
     data = {}
     names = get_session_vars()
     for name in names:
-        if name in flask_session:
-            value = flask_session[name]
-        else:
-            value = ''
-        data[name] = value
+        data[name] = flask_session.get(name, '')
     return data
+
 
 @app.route('/category/<categoryid>', methods=['GET'])
 def main_catid(categoryid):
@@ -191,14 +208,17 @@ def item_delete_failed_noid():
     msg = 'Item Delete Failed'
     return homepage_content(request, message=msg)
 
+
 @app.route('/item/delete_fail/<int:itemid>')
 def item_delete_failed(itemid=0):
     msg = 'Item Delete Failed for id:' + str(itemid)
     return homepage_content(request, message=msg)
 
+
 @app.route('/item/<int:itemid>', methods=['GET'])
 def main_itemid(itemid):
     return homepage_content(request, itemid=itemid)
+
 
 @app.route('/edit/<int:itemid>', methods=['GET'])
 def main_edit_itemid(itemid):
@@ -238,7 +258,7 @@ def item_delete():
     #
     # find record based on form data.
     #
-    #TODO: handle invalid item_id
+    # TODO: handle invalid item_id
     this_id = request.form['item_id']
 
     new_url = '/'
@@ -286,7 +306,7 @@ def item_add():
                 'description': ''
             },
             'logged_in': user_logged_in(request),
-            'session':get_session_info(),
+            'session': get_session_info(),
             'message': ''
         }
         return render_template("item_add.html", data=data)
@@ -368,6 +388,7 @@ def user_logged_in(request):
         flask_session['loggedIn'] = 'no'
 
     return logged_in
+
 
 # def get_session_info(request):
 #     def new_sid():
