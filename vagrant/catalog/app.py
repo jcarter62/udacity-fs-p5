@@ -16,6 +16,8 @@ import httplib2
 from flask import make_response
 import requests
 
+from passlib.apps import custom_app_context as pwd_context
+
 auth = HTTPBasicAuth()
 
 engine = create_engine(DBName)
@@ -52,9 +54,99 @@ def login():
         #
         # Validate User & Password, or by other method
         #
-        flask_session['username'] = request.form['user_name']
-        flask_session['method'] = 'simple'
-        return redirect('/')
+        username = request.form['user_name']
+        password = request.form['user_password']
+        client_id = ''
+
+        #
+        # Determine if they are correct.
+        #
+        up_valid = False
+        session = Session()
+
+        user = session.query(User).filter_by(username=username,
+                                             login_type='simple').first()
+        if user:
+            if user.verify_password(password):
+                up_valid = True
+                client_id = user.client_id
+            else:
+                up_valid = False
+
+        session.close()
+
+        if not up_valid:
+            data = {
+                'title': 'Login',
+                'user_name': username,
+                'user_password': password,
+                'logged_in': user_logged_in(request),
+                'message': 'Login Failed, due to incorrect Username or Password',
+                'client_id': CLIENT_ID,
+                'session': get_session_info()
+            }
+            return render_template("login.html", data=data)
+        else:
+            # Valid Username, so then complete the login process.
+            flask_session['username'] = username
+            flask_session['method'] = 'simple'
+            flask_session['client_id'] = client_id
+
+            return redirect('/')
+
+
+@app.route('/login/create', methods=['GET', 'POST'])
+def login_create():
+    if request.method == 'GET':
+        data = {
+            'title': 'Create Account',
+            'user_name': '',
+            'user_password': '',
+            'logged_in': user_logged_in(request),
+            'message': '',
+            'session': get_session_info()
+        }
+        return render_template("create_account.html", data=data)
+    elif request.method == 'POST':
+        proceed = True
+        # Create Account.
+        username = request.form['user_name']
+        pw1 = request.form['password1']
+        pw2 = request.form['password2']
+
+        if proceed and (username <= ''):
+            proceed = False
+
+        if proceed and (pw1 <= ''):
+            proceed = False
+
+        if proceed and (pw1 != pw2):
+            proceed = False
+
+        if proceed:
+            # save username in db and redirect to login route
+
+            session = Session()
+            user_exists = False
+
+            user = session.query(User).filter_by(username=username,
+                                                 login_type='simple').first()
+            if user:
+                # check to see if password is correct.
+                if user.verify_password(pw1):
+                    user_exists = True
+
+            if not user_exists:
+                client_id = str(uuid.uuid4()).replace('-','')
+                user = User(username=username,
+                            login_type='simple', client_id=client_id)
+                user.hash_password(pw1)
+                session.add(user)
+                session.commit()
+
+            session.close()
+
+        return redirect('/login')
 
 
 @app.route('/login-google', methods=['POST'])
@@ -124,7 +216,6 @@ def login_provider():
 
         data = answer.json()
 
-
         #
         # TODO: Add client_id, and login_type to user table + flask_session
         #
@@ -135,22 +226,26 @@ def login_provider():
 
         # see if user exists, if it doesn't make a new one
         session = Session()
-        user = session.query(User).filter_by(email=email).first()
+        user = session.query(User).filter_by(client_id=client_id, login_type='google').first()
         if not user:
-            user = User(username=name, picture=picture, email=email)
+            user = User(username=name, picture=picture, email=email, client_id=client_id, login_type='google')
             session.add(user)
             session.commit()
 
-        session.close()
 
         # STEP 4 - Make token
         token = user.generate_auth_token(600)
+
 
         flask_session['username'] = user.username
         flask_session['picture'] = user.picture
         flask_session['email'] = user.email
         flask_session['method'] = 'google'
         flask_session['token'] = token
+        flask_session['client_id'] = user.client_id
+
+        session.close()
+
 
         # STEP 5 - Send back token to the client
         return jsonify({'token': token.decode('ascii')})
@@ -178,9 +273,11 @@ def logout():
         wipe_session()
         return redirect('/')
 
+
 def get_session_vars():
     return ['username', 'picture', 'email',
-            'method', 'token', 'loggedIn', 'sid']
+            'method', 'token', 'loggedIn', 'sid',
+            'client_id']
 
 
 def wipe_session():
@@ -389,30 +486,6 @@ def user_logged_in(request):
         flask_session['loggedIn'] = 'no'
 
     return logged_in
-
-
-# def get_session_info(request):
-#     def new_sid():
-#         guid = str(uuid.uuid4()).replace('-','')
-#         return guid
-#
-#     if 'sid' in flask_session:
-#         sid = flask_session['sid']
-#     else:
-#         sid = new_sid()
-#         flask_session['sid'] = sid
-#
-#     username = ''
-#     if 'username' in flask_session:
-#         username = flask_session['username']
-#
-#     session_info = {
-#         'logged_in': user_logged_in(request),
-#         'username': username,
-#         'sid': sid
-#     }
-#     print 'Session Info: ' + json.dumps(session_info)
-#     return session_info
 
 #
 # API Routes

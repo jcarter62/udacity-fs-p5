@@ -6,12 +6,13 @@
         <ul class="navbar-nav px-3">
             {% if data.logged_in %}
                 <a type="button" href="/logout" role="button"
-                   class="btn btn-lg btn-block btn-primary">Logout</a>
+                   class="btn btn-primary" id="hdr_login_btn">Logout</a>
             {% else %}
                 <a type="button" href="/login" role="button"
-                   class="btn btn-lg btn-block btn-primary">Login</a>
+                   class="btn btn-primary" id="hdr_login_btn">Login</a>
             {% endif %}
         </ul>
     </div>
 </div>
 <main role="main" class="flex-shrink-0">
+

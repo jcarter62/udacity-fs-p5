@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ data.title }}</title>
+    {% include 'includes.html' %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+{% include 'top.html' %}
+<div>&nbsp;</div>
+<div class="container">
+    <div class="row table-light">
+        <div class="col-1">
+        </div>
+        <div class="col-7">
+            <form action="/login/create" method="post">
+                <div class="row">
+                    Create Account:
+                </div>
+
+                <div class="row">
+                    <div class="col-4">
+                        <div class="row p-1 font-weight-bolder themed-grid-col">Username:</div>
+                    </div>
+                    <div class="col-6">
+                        <input type="text" name="user_name" value="{{ data.user_name }}"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4">
+                        <div class="row p-1 font-weight-bolder themed-grid-col">Password:</div>
+                    </div>
+                    <div class="col-6">
+                        <input type="password" name="password1" value="" onkeyup="pw1_keyup(this)"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4">
+                        <div class="row p-1 font-weight-bolder themed-grid-col">Password Again:</div>
+                    </div>
+                    <div class="col-6">
+                        <input type="password" name="password2" value="" onkeyup="pw2_keyup(this)" />
+                    </div>
+                </div>
+                <div>&nbsp;</div>
+                <div class="row">
+                    <div class="col-4">&nbsp;</div>
+                    <div class="col-6">
+                        <button class="btn btn-primary" role="button" type="submit">Create Account</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4">&nbsp;</div>
+                    <div class="col-8" id="form_message">
+                        {{ data.message }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% include 'footer.html' %}
+</body>
+<script type="application/javascript">
+
+    var pw1 = "";
+    var pw2 = "";
+
+    function init() {
+            // Hide the login button in the header section.
+            var hdr_login_btn = document.getElementById('hdr_login_btn');
+            hdr_login_btn.style = "display:none;";
+
+            pw1 = "";
+            pw2 = "";
+    }
+
+    function pw1_keyup(e) {
+        pw1 = e.value;
+        pwchange();
+    }
+
+    function pw2_keyup(e) {
+        pw2 = e.value;
+        pwchange();
+    }
+
+    function pwchange() {
+        var msg = document.getElementById('form_message');
+
+        msg.innerText = '';
+
+        console.log('pwchange ' + pw1 + ' =? ' + pw2  );
+        if ( pw1 != pw2 ) {
+            msg.innerText = 'Passwords must match!';
+            return;
+        }
+
+        if (( pw1 == '' ) && ( pw2 == '' )) {
+            msg.innerText = 'Passwords must not be blank.';
+            return;
+        }
+        return;
+    }
+
+    init();
+
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+
+</html>

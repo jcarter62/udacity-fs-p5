@@ -23,26 +23,29 @@
 
                 <div>&nbsp;</div>
                 <div class="row">
-                    <div class="col-3">
+                    <div class="col-2">
                         <div class="row p-1 font-weight-bolder themed-grid-col">Username:</div>
                     </div>
-                    <div class="col-8">
+                    <div class="col-10">
                         <input type="text" name="user_name" value="{{ data.user_name }}"/>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="col-3">
+                    <div class="col-2">
                         <div class="row p-1 font-weight-bolder themed-grid-col">Password:</div>
                     </div>
-                    <div class="col-8">
+                    <div class="col-10">
                         <input type="password" name="user_password" value="{{ data.user_password }}"/>
                     </div>
                 </div>
-
+                <hr>
                 <div class="row">
-                    <div class="col-3">
+                    <div class="col-2">
                         <button class="btn btn-primary" role="button" type="submit">Login</button>
+                    </div>
+                    <div class="col-10">
+                        {{ data.message }}
                     </div>
                     {#                    <div class="col-3 g-signin2" data-longtitle="true" data-theme="dark" id="signinButton"></div>#}
                 </div>
@@ -52,11 +55,15 @@
 </div>
 <div>&nbsp;</div>
 <div class="container">
+    <form action="login/create" method="get">
     <div class="row">
         <div class="row">
-            <div class="col-3 g-signin2" data-longtitle="true" data-theme="dark" id="signinButton"></div>
+            <div class="g-signin2" data-longtitle="true" data-theme="dark" id="signinButton"></div>
+            <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <button class="btn btn-primary" role="button" type="submit">Create Account</button>
         </div>
     </div>
+    </form>
 </div>
 
 {% include 'footer.html' %}
@@ -90,6 +97,11 @@
                         e.innerText = 'Sign in with Google';
                     }
                 }
+
+                // Hide the login button in the header section.
+                var hdr_login_btn = document.getElementById('hdr_login_btn');
+                hdr_login_btn.style = "display:none;";
+
             }, 250);
         });
     }

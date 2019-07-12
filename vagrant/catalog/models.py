@@ -9,10 +9,10 @@ from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSign
 import urllib
 from datetime import datetime, timedelta
 
-
 Base = declarative_base()
 secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
 DBName = 'sqlite:///catalogApp.db'
+
 
 class User(Base):
     __tablename__ = 'user'
@@ -21,6 +21,8 @@ class User(Base):
     picture = Column(String)
     email = Column(String)
     password_hash = Column(String(64))
+    client_id = Column(String)
+    login_type = Column(String)  # simple, or google
 
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
@@ -62,6 +64,7 @@ class Category(Base):
             'description': self.description
         }
 
+
 class Item(Base):
     __tablename__ = 'item'
     id = Column(Integer, primary_key=True)
@@ -81,10 +84,12 @@ class Item(Base):
             'create_date': self.create_date
         }
 
+
 class Sample:
     def category(self):
-        def buildone(name,desc=''):
-            return {"name":name, "description": desc}
+        def buildone(name, desc=''):
+            return {"name": name, "description": desc}
+
         items = [
             buildone('Soccer'),
             buildone('Basketball'),
@@ -95,8 +100,8 @@ class Sample:
         return items
 
     def item(self):
-        def buildone(name,categoryid, create_date):
-            return {'name':name, 'categoryid':categoryid, \
+        def buildone(name, categoryid, create_date):
+            return {'name': name, 'categoryid': categoryid, \
                     'description': getdesc(), \
                     'create_date': create_date
                     }
@@ -108,8 +113,7 @@ class Sample:
             return result
 
         def getdatetime(offset):
-
-            dt = datetime.now() -  timedelta(days=offset)
+            dt = datetime.now() - timedelta(days=offset)
             print dt
             return dt
 
