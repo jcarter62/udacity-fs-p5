@@ -41,12 +41,15 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-3"></div>
-                    <div class="col-8">
+                    <div class="col-3">
                         <button class="btn btn-primary" role="button" type="submit">Login</button>
-                        &nbsp;&nbsp;
-                        &nbsp;<button class="btn g-signin2" id="signinButton">Google</button>
                     </div>
+                    <div class="col-3 g-signin2" data-longtitle="true" data-theme="dark" id="signinButton">
+{#                        &nbsp;<button class="btn" >Google Sign-In</button>#}
+                    </div>
+
+{#                    <div class="g-signin2 col-3" data-longtitle="true" id="signinButton"></div>#}
+
                 </div>
                 {#            <input type="hidden" name="item_id" value="{{ result.item.id }}"/>#}
             </form>
@@ -75,7 +78,19 @@
                     'redirect_uri': 'postmessage'
                 }).then(offlineAccess);
             });
+
+            // https://stackoverflow.com/a/50948753
+            setTimeout(function () {
+                $('#signinButton div div div span span:last').text("hello");
+                $('#signinButton div div div span span:first').text("hello");
+            }, 3000);
         });
+    }
+
+    function signIn() {
+        auth2.grantOfflineAccess({
+            'redirect_uri': 'postmessage'
+        }).then(offlineAccess);
     }
 
     function offlineAccess(resp) {
@@ -120,7 +135,31 @@
     }
 
 </script>
+
+{#  <script>#}
+{#    function onSuccess(googleUser) {#}
+{#      console.log('Logged in as: ' + googleUser.getBasicProfile().getName());#}
+{#    }#}
+{#    function onFailure(error) {#}
+{#      console.log(error);#}
+{#    }#}
+{#    function renderButton() {#}
+{#      gapi.signin2.render('my-signin2', {#}
+{#        'scope': 'profile email',#}
+{#        'width': 240,#}
+{#        'height': 50,#}
+{#        'longtitle': true,#}
+{#        'theme': 'dark',#}
+{#        'onsuccess': onSuccess,#}
+{#        'onfailure': onFailure#}
+{#      });#}
+{#    }#}
+{#  </script>#}
+
+
 <!--END GOOGLE SIGN IN CODE -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <script src="https://apis.google.com/js/platform.js?onload=init"></script>
+{#<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>#}
+
 </html>
