@@ -131,6 +131,7 @@ def login_provider():
         name = data['name']
         picture = data['picture']
         email = data['email']
+        client_id = data['id']
 
         # see if user exists, if it doesn't make a new one
         session = Session()
