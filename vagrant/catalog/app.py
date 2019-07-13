@@ -1,20 +1,18 @@
+import datetime
+import json
 import uuid
 
-from flask import Flask, jsonify, render_template, request, redirect, url_for, escape, session as flask_session
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy import create_engine
-from flask_httpauth import HTTPBasicAuth
-
-from models import Base, User, Item, Category, DBName, Sample
-import json
-import datetime
-
-from oauth2client.client import flow_from_clientsecrets
-from oauth2client.client import FlowExchangeError
 import httplib2
-from flask import make_response
 import requests
+from flask import Flask, jsonify, render_template, request, redirect, escape, session as flask_session
+from flask import make_response
+from flask_httpauth import HTTPBasicAuth
+from oauth2client.client import FlowExchangeError
+from oauth2client.client import flow_from_clientsecrets
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from models import Base, User, Item, Category, DBName
 
 auth = HTTPBasicAuth()
 
@@ -135,7 +133,7 @@ def login_create():
                     user_exists = True
 
             if not user_exists:
-                client_id = str(uuid.uuid4()).replace('-','')
+                client_id = str(uuid.uuid4()).replace('-', '')
                 user = User(username=username,
                             login_type='simple', client_id=client_id)
                 user.hash_password(pw1)
@@ -230,10 +228,8 @@ def login_provider():
             session.add(user)
             session.commit()
 
-
         # STEP 4 - Make token
         token = user.generate_auth_token(600)
-
 
         flask_session['username'] = user.username
         flask_session['picture'] = user.picture
@@ -243,7 +239,6 @@ def login_provider():
         flask_session['client_id'] = user.client_id
 
         session.close()
-
 
         # STEP 5 - Send back token to the client
         return jsonify({'token': token.decode('ascii')})
@@ -331,7 +326,6 @@ def item_save():
     #
     # find record based on form data.
     #
-    # db.update(table_name).values(attribute = new_value).where(condition)
     this_name = escape(request.form['item_name'])
     this_id = request.form['item_id']
     this_desc = escape(request.form['item_text'])
@@ -339,6 +333,7 @@ def item_save():
 
     session = Session()
     for record in session.query(Item).filter_by(id=this_id).all():
+        # Update fields for this record.
         record.description = this_desc
         record.name = this_name
         record.categoryid = this_cat
@@ -488,6 +483,7 @@ def user_logged_in(request):
 
     return logged_in
 
+
 #
 # API Routes
 #
@@ -506,14 +502,14 @@ def api_categories(catid=''):
     except Exception, e:
         print 'API_Categories Error: ' + str(e)
 
-    # Create sample data if empty
-    if not recs:
-        sample = Sample()
-        for eachRec in sample.category():
-            rec = Category(name=eachRec['name'], description=eachRec['description'])
-            session.add(rec)
-        session.commit()
-        recs = session.query(Category).all()
+    # # Create sample data if empty
+    # if not recs:
+    #     sample = Sample()
+    #     for eachRec in sample.category():
+    #         rec = Category(name=eachRec['name'], description=eachRec['description'])
+    #         session.add(rec)
+    #     session.commit()
+    #     recs = session.query(Category).all()
 
     json_records = [r.serialize for r in recs]
     session.close()

@@ -87,51 +87,51 @@ class Item(Base):
         }
 
 
-class Sample:
-    def category(self):
-        def buildone(name, desc=''):
-            return {"name": name, "description": desc}
-
-        items = [
-            buildone('Soccer'),
-            buildone('Basketball'),
-            buildone('Baseball'),
-            buildone('Frisbee'),
-            buildone('Snowboarding')
-        ]
-        return items
-
-    def item(self):
-        def buildone(name, categoryid, create_date):
-            return {'name': name, 'categoryid': categoryid, \
-                    'description': getdesc(), \
-                    'create_date': create_date
-                    }
-
-        def getdesc():
-            link = "https://loripsum.net/api/1/short/plaintext"
-            f = urllib.urlopen(link)
-            result = f.read().decode("utf8", "ignore")
-            return result
-
-        def getdatetime(offset):
-            dt = datetime.now() - timedelta(days=offset)
-            print dt
-            return dt
-
-        items = [
-            buildone('stick', 1, getdatetime(0)),
-            buildone('Shinguards', 1, getdatetime(1)),
-            buildone('Goggles', 2, getdatetime(10)),
-            buildone('Frisbee', 2, getdatetime(15)),
-            buildone('Jersey', 3, getdatetime(7)),
-            buildone('Soccer Cleates', 3, getdatetime(2)),
-            buildone('Bat', 4, getdatetime(6)),
-            buildone('Glove', 4, getdatetime(8)),
-            buildone('Hat', 5, getdatetime(5)),
-            buildone('Jacket', 5, getdatetime(2.5))
-        ]
-        return items
+# class Sample:
+#     def category(self):
+#         def buildone(name, desc=''):
+#             return {"name": name, "description": desc}
+#
+#         items = [
+#             buildone('Soccer'),
+#             buildone('Basketball'),
+#             buildone('Baseball'),
+#             buildone('Frisbee'),
+#             buildone('Snowboarding')
+#         ]
+#         return items
+#
+#     def item(self):
+#         def buildone(name, categoryid, create_date):
+#             return {'name': name, 'categoryid': categoryid, \
+#                     'description': getdesc(), \
+#                     'create_date': create_date
+#                     }
+#
+#         def getdesc():
+#             link = "https://loripsum.net/api/1/short/plaintext"
+#             f = urllib.urlopen(link)
+#             result = f.read().decode("utf8", "ignore")
+#             return result
+#
+#         def getdatetime(offset):
+#             dt = datetime.now() - timedelta(days=offset)
+#             print dt
+#             return dt
+#
+#         items = [
+#             buildone('stick', 1, getdatetime(0)),
+#             buildone('Shinguards', 1, getdatetime(1)),
+#             buildone('Goggles', 2, getdatetime(10)),
+#             buildone('Frisbee', 2, getdatetime(15)),
+#             buildone('Jersey', 3, getdatetime(7)),
+#             buildone('Soccer Cleates', 3, getdatetime(2)),
+#             buildone('Bat', 4, getdatetime(6)),
+#             buildone('Glove', 4, getdatetime(8)),
+#             buildone('Hat', 5, getdatetime(5)),
+#             buildone('Jacket', 5, getdatetime(2.5))
+#         ]
+#         return items
 
 
 engine = create_engine(DBName)
