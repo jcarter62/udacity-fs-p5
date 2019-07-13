@@ -10,6 +10,8 @@
 <div>&nbsp;</div>
 <div class="container">
     <div class="row table-light">
+
+{# List of Categories on Left Side#}
         <div class="col-3">
             <div class="row p-1 font-weight-bolder themed-grid-col">Categories</div>
             {% for category in data.categories %}
@@ -25,9 +27,11 @@
 
         <div class="col-8">
             <!-- data.show_item = {{ data.show_item }} -->
+
+{# User Selected One Item#}
             {% if data.show_item == 1 %}
-{#                <div class="row p-1 font-weight-normal themed-grid-col">{{ data.item.name }}</div>#}
                 {% if (data.edit_item == 1) %}
+{# Edit One Item#}
                     <form action="/save" method="post">
                         <div class="row">
                             <input type="text" name="item_name" value="{{ data.item.name }}" />
@@ -44,9 +48,11 @@
                     <div class="row p-1 font-weight-normal themed-grid-col">{{ data.item.name }}</div>
                     <div class="row p-1 font-weight-normal themed-grid-col">{{ data.item.description }}</div>
                     <div class="row p-1">
-                        {%  if data.logged_in %}
+                        {%  if data.logged_in and ( data.item.client_id == data.session.client_id ) %}
                             <a class="btn btn-primary" href="/edit/{{ data.item.id }}" role="button">Edit</a>
                             <a class="btn btn-danger" href="/delete/{{ data.item.id }}" role="button">Delete</a>
+                        {% else %}
+                            Modification limited to user: {{ data.item.owner }}
                         {% endif %}
                     </div>
                 {% endif %}

@@ -72,6 +72,7 @@ class Item(Base):
     name = Column(String)
     description = Column(String)
     create_date = Column(DateTime)
+    client_id = Column(String)
 
     @property
     def serialize(self):
@@ -81,7 +82,8 @@ class Item(Base):
             'categoryid': self.categoryid,
             'name': self.name,
             'description': self.description,
-            'create_date': self.create_date
+            'create_date': self.create_date,
+            'client_id': self.client_id
         }
 
 

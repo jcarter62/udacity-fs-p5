@@ -16,8 +16,6 @@ import httplib2
 from flask import make_response
 import requests
 
-from passlib.apps import custom_app_context as pwd_context
-
 auth = HTTPBasicAuth()
 
 engine = create_engine(DBName)
@@ -382,9 +380,12 @@ def item_add():
         this_desc = escape(request.form['item_text'])
         this_cat = request.form['item_cat']
         this_create_date = datetime.datetime.now()
+        this_client_id = request.form['client_id']
 
         record = Item(categoryid=this_cat, description=this_desc, \
                       name=this_name, create_date=this_create_date)
+
+        record.client_id = this_client_id
 
         session = Session()
         session.add(record)
@@ -519,6 +520,14 @@ def api_categories(catid=''):
     return jsonify(json_records)
 
 
+def get_users(db_session):
+    result = {}
+    userlist = db_session.query(User).all()
+    for user in userlist:
+        result[user.client_id] = user.username
+    return result
+
+
 @app.route('/api/v1/items')
 def api_items(sortby='', category=''):
     all_records = True
@@ -540,22 +549,26 @@ def api_items(sortby='', category=''):
         all_records = False
         recs = session.query(Item).filter_by(categoryid=selected_id).all()
 
-    # Create sample data if empty
-    if all_records and (recs == []):
-        sample = Sample()
-        for eachRec in sample.item():
-            rec = Item(name=eachRec['name'], categoryid=eachRec['categoryid'], \
-                       description=eachRec['description'], \
-                       create_date=eachRec['create_date'])
-            session.add(rec)
-        session.commit()
-        recs = session.query(Item).all()
+    users = get_users(session)
 
+    # # Create sample data if empty
+    # if all_records and (recs == []):
+    #     sample = Sample()
+    #     for eachRec in sample.item():
+    #         rec = Item(name=eachRec['name'], categoryid=eachRec['categoryid'], \
+    #                    description=eachRec['description'], \
+    #                    create_date=eachRec['create_date'])
+    #         session.add(rec)
+    #     session.commit()
+    #     recs = session.query(Item).all()
+    #
     json_records = [r.serialize for r in recs]
     session.close()
 
     for j in json_records:
         j['fmtdate'] = j['create_date'].__format__('%m/%d/%Y %H:%M')
+        client_id = j['client_id']
+        j['owner'] = users[client_id]
 
     def cmpdatedec(a, b):
         try:
@@ -581,11 +594,25 @@ def api_one_item(itemid):
     try:
         session = Session()
         one_record = session.query(Item).filter_by(id=itemid).one()
+        users = get_users(session)
         session.close()
+
+        owner = users[one_record.client_id]
+        one = {
+            'client_id': one_record.client_id,
+            'create_date': one_record.create_date,
+            'description': one_record.description,
+            'categoryid': one_record.categoryid,
+            'id': one_record.id,
+            'name': one_record.name,
+            'owner': owner
+        }
+        result = jsonify(one)
+
         #
         # one_record['fmtdate'] = one_record['create_date'].__format__('%m/%d/%Y %H:%M')
         #
-        return jsonify(one_record.serialize)
+        return result
     except:
         return jsonify({})
 
