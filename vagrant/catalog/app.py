@@ -153,12 +153,11 @@ def login_google():
     return redirect('/')
 
 
-@app.route('/oauth/google', methods=['POST'])
-def login_provider():
+@app.route('/oauth/<provider>', methods=['POST'])
+def login_provider(provider):
     # STEP 1 - Parse the auth code
     auth_code = request.data
-    print "Step 1 - Complete, received auth code %s" % auth_code
-    provider = 'google'
+    # print "Step 1 - Complete, received auth code %s" % auth_code
     if provider == 'google':
         # STEP 2 - Exchange for a token
         try:
@@ -403,7 +402,7 @@ def item_add():
         this_create_date = datetime.datetime.now()
         this_client_id = request.form['client_id']
 
-        record = Item(categoryid=this_cat, description=this_desc, \
+        record = Item(categoryid=this_cat, description=this_desc,
                       name=this_name, create_date=this_create_date)
 
         record.client_id = this_client_id

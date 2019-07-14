@@ -1,13 +1,11 @@
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy import create_engine
-from passlib.apps import custom_app_context as pwd_context
-import random, string
+import random
+import string
+
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
-import urllib
-from datetime import datetime, timedelta
+from passlib.apps import custom_app_context as pwd_context
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
@@ -85,53 +83,6 @@ class Item(Base):
             'create_date': self.create_date,
             'client_id': self.client_id
         }
-
-
-# class Sample:
-#     def category(self):
-#         def buildone(name, desc=''):
-#             return {"name": name, "description": desc}
-#
-#         items = [
-#             buildone('Soccer'),
-#             buildone('Basketball'),
-#             buildone('Baseball'),
-#             buildone('Frisbee'),
-#             buildone('Snowboarding')
-#         ]
-#         return items
-#
-#     def item(self):
-#         def buildone(name, categoryid, create_date):
-#             return {'name': name, 'categoryid': categoryid, \
-#                     'description': getdesc(), \
-#                     'create_date': create_date
-#                     }
-#
-#         def getdesc():
-#             link = "https://loripsum.net/api/1/short/plaintext"
-#             f = urllib.urlopen(link)
-#             result = f.read().decode("utf8", "ignore")
-#             return result
-#
-#         def getdatetime(offset):
-#             dt = datetime.now() - timedelta(days=offset)
-#             print dt
-#             return dt
-#
-#         items = [
-#             buildone('stick', 1, getdatetime(0)),
-#             buildone('Shinguards', 1, getdatetime(1)),
-#             buildone('Goggles', 2, getdatetime(10)),
-#             buildone('Frisbee', 2, getdatetime(15)),
-#             buildone('Jersey', 3, getdatetime(7)),
-#             buildone('Soccer Cleates', 3, getdatetime(2)),
-#             buildone('Bat', 4, getdatetime(6)),
-#             buildone('Glove', 4, getdatetime(8)),
-#             buildone('Hat', 5, getdatetime(5)),
-#             buildone('Jacket', 5, getdatetime(2.5))
-#         ]
-#         return items
 
 
 engine = create_engine(DBName)
