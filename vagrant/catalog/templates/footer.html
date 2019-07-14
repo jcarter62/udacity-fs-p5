@@ -4,10 +4,15 @@
         <div class="row">
             <div class="col-3">
                 {% if data.logged_in %}
-                    <a class="btn btn-primary" href="/add" role="button">Add Item</a>
+                    <a class="btn btn-primary" href="/category/add" role="button">Category +</a>
                 {% endif %}
             </div>
-            <div class="col-8">
+            <div class="col-3">
+                {% if data.logged_in %}
+                    <a class="btn btn-primary" href="/add" role="button">Item +</a>
+                {% endif %}
+            </div>
+            <div class="col-6">
                 {% if data.session.username > '' %}{{ data.session.username }}{% endif %}
                 {% if data.session.picture > '' %}
                     <img src="{{ data.session.picture }}" height="50px"/>

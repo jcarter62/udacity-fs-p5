@@ -289,6 +289,32 @@ def get_session_info():
     return data
 
 
+@app.route('/category/add', methods=['GET','POST'])
+def category_add():
+    if request.method == 'POST':
+        this_name = escape(request.form['name'])
+
+        record = Category(name=this_name)
+
+        session = Session()
+        session.add(record)
+        session.commit()
+        session.close()
+
+        return homepage_content(request)
+    elif request.method == 'GET':
+        cat_list = api_categories()
+
+        data = {
+            'title': 'Add Category',
+            'categories': cat_list.json,
+            'category': '',
+            'logged_in': user_logged_in(request),
+            'session': get_session_info(),
+            'message': ''
+        }
+        return render_template("category_add.html", data=data)
+
 @app.route('/category/<categoryid>', methods=['GET'])
 def main_catid(categoryid):
     return homepage_content(request, catid=categoryid)
