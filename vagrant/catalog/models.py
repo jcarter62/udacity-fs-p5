@@ -1,14 +1,17 @@
 import random
 import string
 
-from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
+from itsdangerous import \
+    (TimedJSONWebSignatureSerializer as Serializer,
+     BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
-secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                     for x in xrange(32))
 DBName = 'sqlite:///catalogApp.db'
 
 

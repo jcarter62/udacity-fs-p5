@@ -75,14 +75,14 @@
 
     function init() {
         gapi.load('auth2', function () {
-            console.log("loaded auth2")
+            console.log("loaded auth2");
             auth2 = gapi.auth2.init({
                 client_id: '{{ data.client_id }}',
                 scope: 'profile email'
             });
 
             $("#signinButton").click(function () {
-                console.log("clicked")
+                console.log("clicked");
                 auth2.grantOfflineAccess({
                     'redirect_uri': 'postmessage'
                 }).then(offlineAccess);

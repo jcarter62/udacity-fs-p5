@@ -4,7 +4,8 @@ import uuid
 
 import httplib2
 import requests
-from flask import Flask, jsonify, render_template, request, redirect, escape, session as flask_session
+from flask import Flask, jsonify, render_template, request, redirect, escape, \
+    session as flask_session
 from flask import make_response
 from flask_httpauth import HTTPBasicAuth
 from oauth2client.client import FlowExchangeError
@@ -40,7 +41,7 @@ def login():
             'title': 'Login',
             'user_name': '',
             'user_password': '',
-            'logged_in': user_logged_in(request),
+            'logged_in': user_logged_in(),
             'message': '',
             'client_id': CLIENT_ID,
             'session': get_session_info()
@@ -76,8 +77,9 @@ def login():
                 'title': 'Login',
                 'user_name': username,
                 'user_password': password,
-                'logged_in': user_logged_in(request),
-                'message': 'Login Failed, due to incorrect Username or Password',
+                'logged_in': user_logged_in(),
+                'message': 'Login Failed, ' +
+                           'due to incorrect Username or Password',
                 'client_id': CLIENT_ID,
                 'session': get_session_info()
             }
@@ -101,7 +103,7 @@ def login_create():
             'title': 'Create Account',
             'user_name': '',
             'user_password': '',
-            'logged_in': user_logged_in(request),
+            'logged_in': user_logged_in(),
             'message': '',
             'session': get_session_info()
         }
@@ -148,14 +150,6 @@ def login_create():
         return redirect('/login')
 
 
-# @app.route('/login-google', methods=['POST'])
-# def login_google():
-#     data = request.data
-#
-#     print data
-#     return redirect('/')
-#
-
 @app.route('/oauth/<provider>', methods=['POST'])
 def login_provider(provider):
     # STEP 1 - Parse the auth code
@@ -165,17 +159,20 @@ def login_provider(provider):
         # STEP 2 - Exchange for a token
         try:
             # Upgrade the authorization code into a credentials object
-            oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+            oauth_flow = flow_from_clientsecrets('client_secrets.json',
+                                                 scope='')
             oauth_flow.redirect_uri = 'postmessage'
             credentials = oauth_flow.step2_exchange(auth_code)
         except FlowExchangeError:
-            response = make_response(json.dumps('Failed to upgrade the authorization code.'), 401)
+            response = make_response(
+                json.dumps('Failed to upgrade the authorization code.'), 401)
             response.headers['Content-Type'] = 'application/json'
             return response
 
         # Check that the access token is valid.
         access_token = credentials.access_token
-        url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
+        url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
+               % access_token)
         h = httplib2.Http()
         result = json.loads(h.request(url, 'GET')[1])
         # If there was an error in the access token info, abort.
@@ -186,28 +183,22 @@ def login_provider(provider):
         # Verify that the access token is used for the intended user.
         gplus_id = credentials.id_token['sub']
         if result['user_id'] != gplus_id:
-            response = make_response(json.dumps("Token's user ID doesn't match given user ID."), 401)
+            response = make_response(
+                json.dumps("Token's user ID doesn't match given user ID."),
+                401)
             response.headers['Content-Type'] = 'application/json'
             return response
 
         # Verify that the access token is valid for this app.
         if result['issued_to'] != CLIENT_ID:
-            response = make_response(json.dumps("Token's client ID does not match app's."), 401)
+            response = make_response(
+                json.dumps("Token's client ID does not match app's."), 401)
             response.headers['Content-Type'] = 'application/json'
             return response
-
-        # stored_credentials = login_session.get('credentials')
-        # stored_gplus_id = login_session.get('gplus_id')
-        # if stored_credentials is not None and gplus_id == stored_gplus_id:
-        #     response = make_response(json.dumps('Current user is already connected.'), 200)
-        #     response.headers['Content-Type'] = 'application/json'
-        #     return response
-        # print "Step 2 Complete! Access Token : %s " % credentials.access_token
 
         # STEP 3 - Find User or make a new one
 
         # Get user info
-        h = httplib2.Http()
         userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
         params = {'access_token': credentials.access_token, 'alt': 'json'}
         answer = requests.get(userinfo_url, params=params)
@@ -224,9 +215,11 @@ def login_provider(provider):
 
         # see if user exists, if it doesn't make a new one
         session = Session()
-        user = session.query(User).filter_by(client_id=client_id, login_type='google').first()
+        user = session.query(User) \
+            .filter_by(client_id=client_id, login_type='google').first()
         if not user:
-            user = User(username=name, picture=picture, email=email, client_id=client_id, login_type='google')
+            user = User(username=name, picture=picture, email=email,
+                        client_id=client_id, login_type='google')
             session.add(user)
             session.commit()
 
@@ -257,7 +250,7 @@ def logout():
             'title': 'Login',
             'user_name': '',
             'user_password': '',
-            'logged_in': user_logged_in(request),
+            'logged_in': user_logged_in(),
             'message': '',
             'client_id': CLIENT_ID,
             'session': get_session_info()
@@ -267,6 +260,7 @@ def logout():
         # 'POST'
         wipe_session()
         return redirect('/')
+
 
 #
 # Session methods
@@ -294,7 +288,7 @@ def get_session_info():
     return data
 
 
-@app.route('/category/add', methods=['GET','POST'])
+@app.route('/category/add', methods=['GET', 'POST'])
 def category_add():
     if request.method == 'POST':
         this_name = escape(request.form['name'])
@@ -318,11 +312,12 @@ def category_add():
             'title': 'Add Category',
             'categories': categories,
             'category': '',
-            'logged_in': user_logged_in(request),
+            'logged_in': user_logged_in(),
             'session': get_session_info(),
             'message': ''
         }
         return render_template("category_add.html", data=data)
+
 
 @app.route('/category/<categoryid>', methods=['GET'])
 def main_catid(categoryid):
@@ -434,7 +429,7 @@ def item_add():
                 'categoryid': 0,
                 'description': ''
             },
-            'logged_in': user_logged_in(request),
+            'logged_in': user_logged_in(),
             'session': get_session_info(),
             'message': ''
         }
@@ -442,7 +437,7 @@ def item_add():
 
 
 def homepage_content(request, catid='', itemid=0, edit_item=0, message=''):
-    '''
+    """
     This method prepares the template data needed for most page renderings.
 
     :param request: http request object
@@ -451,7 +446,8 @@ def homepage_content(request, catid='', itemid=0, edit_item=0, message=''):
     :param edit_item: Optional
     :param message: Optional
     :return: rendered page template
-    '''
+    """
+
     def is_not_empty(any_structure):
         if any_structure:
             return True
@@ -478,7 +474,7 @@ def homepage_content(request, catid='', itemid=0, edit_item=0, message=''):
 
     # noinspection PyBroadException
     try:
-        data.logged_in = user_logged_in(request)
+        data.logged_in = user_logged_in()
     except:
         data.logged_in = False
     data.session = get_session_info()
@@ -494,7 +490,7 @@ def item_edit_content(request, itemid=0):
     item_detail = api_one_item(itemid)
     data.categories = cat_list.json
     data.item = item_detail.json
-    data.logged_in = user_logged_in(request)
+    data.logged_in = user_logged_in()
     data.message = ''
     data.session = get_session_info()
 
@@ -508,14 +504,14 @@ def item_delete_content(request, itemid=0):
     item_detail = api_one_item(itemid)
     data.categories = cat_list.json
     data.item = item_detail.json
-    data.logged_in = user_logged_in(request)
+    data.logged_in = user_logged_in()
     data.message = ''
     data.session = get_session_info()
     return render_template("item_delete.html", data=data)
 
 
 # noinspection PyBroadException
-def user_logged_in(request):
+def user_logged_in():
     logged_in = False
     try:
         if 'username' in flask_session:
@@ -637,13 +633,14 @@ def api_one_item(itemid):
     except:
         return jsonify({})
 
+
 @app.route('/api/v1/catalog')
 def api_catalog():
     category_list = []
     session = Session()
     categories = session.query(Category).order_by(Category.name).all()
     for cat in categories:
-        thiscat = { 'category': cat.name, 'id': cat.id }
+        thiscat = {'category': cat.name, 'id': cat.id}
         thisid = cat.id
         items = session.query(Item).filter_by(categoryid=thisid).all()
         thisitems = []
@@ -653,12 +650,11 @@ def api_catalog():
                 'name': i.name,
                 'description': i.description,
                 'category_id': i.categoryid
-
             })
         thiscat['items'] = thisitems
         category_list.append(thiscat)
 
-    result = jsonify({ 'catalog': category_list })
+    result = jsonify({'catalog': category_list})
     return result
 
 

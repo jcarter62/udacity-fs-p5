@@ -42,8 +42,8 @@
     var btn = document.getElementById('saveBtn');
 
     function chk_input_keyup(e) {
-        inp_value = e.value.toUpperCase();
-        duplicate = 0;
+        var inp_value = e.value.toUpperCase();
+        var duplicate = 0;
 
         for (var i =0; i<categories.length; i++) {
             console.log('cmp ' + categories[i] + ' == ' + inp_value );
