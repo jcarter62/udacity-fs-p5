@@ -25,7 +25,7 @@ app = Flask(__name__)
 app.secret_key = 'this is a secret key'
 
 CLIENT_ID = json.loads(
-    open('client_secret.json', 'r').read())['web']['client_id']
+    open('client_secrets.json', 'r').read())['web']['client_id']
 
 
 @app.route('/', methods=['GET'])
@@ -81,6 +81,9 @@ def login():
                 'client_id': CLIENT_ID,
                 'session': get_session_info()
             }
+            '''
+            Login Failed, so send them back to login.html
+            '''
             return render_template("login.html", data=data)
         else:
             # Valid Username, so then complete the login process.
@@ -145,13 +148,13 @@ def login_create():
         return redirect('/login')
 
 
-@app.route('/login-google', methods=['POST'])
-def login_google():
-    data = request.data
-
-    print data
-    return redirect('/')
-
+# @app.route('/login-google', methods=['POST'])
+# def login_google():
+#     data = request.data
+#
+#     print data
+#     return redirect('/')
+#
 
 @app.route('/oauth/<provider>', methods=['POST'])
 def login_provider(provider):
@@ -265,6 +268,9 @@ def logout():
         wipe_session()
         return redirect('/')
 
+#
+# Session methods
+#
 
 def get_session_vars():
     return ['username', 'picture', 'email',
