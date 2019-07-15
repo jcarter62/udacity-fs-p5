@@ -1,11 +1,11 @@
 # Project - Item Catalog
-## Udacity Full Stack Nano Degree  
+### Udacity Full Stack Nano Degree - Project #4  
 
 ## About
-
-This project implements a list of items within a variety of categories, and integrates third party 
-user registration and authentication.  In addition, the application offers a simple
-user + password authentication as well.  The third party authentication used is by way 
+This project implements a catalog, containing categories and associated items.  
+Authentication is provided by two methods.  The first method is through a 
+third party provider.  The second method is by way of a simple
+user + password local method.  The third party authentication used is by way 
 of google.  
 
 Any user can view categories and items, however in order to add, modify or delete, the 
@@ -18,20 +18,20 @@ Some of the technologies used in this application include:
 * Jinja2
 * SQLite
 
----
-
-## Installation and execution
+## Prerequisites
 In order to install and execute, download or install the following:
 * [Virtual Box](https://www.virtualbox.org/wiki/Downloads)
 * [Install vagrant](https://www.vagrantup.com/)
 * [Clone this repository](https://github.com/jcarter62/udacity-item-catalog.git)
----
+
+## Installing
+* Clone the repository listed above
 * open a command line and change current directory to where you cloned the repository.
 * perform _vagrant up_, and wait for a command prompt to return.
 * perform _vagrant ssh_
 * cd /vagrant/catalog
 * execute _python app.py_
-* open browser, and visit http://localhost:8000
+* open browser, and visit [http://localhost:8000](http://localhost:8000)
 * if first time running, login in order to add categories or items.
 
 ## Walkthrough Images
@@ -84,12 +84,9 @@ There are 3 main api endpoints available to users.
 - /api/v1/items<br>Returns a list of all items in database.
 - /api/v1/items/**item-id**<br>Returns one item record where item id=**item-id**.
 
+## Authors
+Jim Carter
 
-
-
-
-
-
-
-
+## License
+This project is licensed under the MIT License
 
