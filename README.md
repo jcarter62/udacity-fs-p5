@@ -1,7 +1,7 @@
-#Project - Item Catalog
-##Udacity Full Stack Nano Degree  
+# Project - Item Catalog
+## Udacity Full Stack Nano Degree  
 
-##About
+## About
 
 This project implements a list of items within a variety of categories, and integrates third party 
 user registration and authentication.  In addition, the application offers a simple
@@ -20,17 +20,27 @@ Some of the technologies used in this application include:
 
 ---
 
-##Installation and execution
+## Installation and execution
 In order to install and execute, download or install the following:
 * [Virtual Box](https://www.virtualbox.org/wiki/Downloads)
 * [Install vagrant](https://www.vagrantup.com/)
 * [Clone this repository](https://github.com/jcarter62/udacity-item-catalog.git)
 ---
 * open a command line and change current directory to where you cloned the repository.
-* perform _vagrant up_
-* 
+* perform _vagrant up_, and wait for a command prompt to return.
+* perform _vagrant ssh_
+* cd /vagrant/catalog
+* execute _python app.py_
+* open browser, and visit http://localhost:8000
+* if first time running, login in order to add categories or items.
 
-from the main directory run sudo pip install -r requirements
-run application with python application.py from within its directory
-go to http://localhost/categories to access the application
-*if first time running, you must add a category before adding an item
+## Walkthrough Images
+
+Startup
+<img src="images/0-startup.png">
+
+Login
+<img src="images/1-login.png">
+
+
+
