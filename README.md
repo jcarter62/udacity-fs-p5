@@ -2,15 +2,14 @@
 ### Udacity Full Stack Nano Degree - Project #4  
 
 ## About
-This project implements a catalog, containing categories and associated items.  
-Authentication is provided by two methods.  The first method is through a 
-third party provider.  The second method is by way of a simple
-user + password local method.  The third party authentication used is by way 
-of google.  
+This project implements a catalog containing categories and associated items.  
+Two methods provide authentication.  The first method is through a 
+third-party provider.  The second method is by way of a simple
+user + password local method.  The third-party authentication used is by way of google.  
 
-Any user can view categories and items, however in order to add, modify or delete, the 
-user must be authenticated.  In addition, in order to modify or delete a category,
-the user must be the owner / creator of the item.  
+Any user can view categories and items; however, to add, modify, or 
+delete, the user must be authenticated.  Also, to modify or delete a category, 
+the user must be the owner/creator of the item.  
 
 Some of the technologies used in this application include:
 * Flask 
