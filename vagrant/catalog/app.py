@@ -442,6 +442,16 @@ def item_add():
 
 
 def homepage_content(request, catid='', itemid=0, edit_item=0, message=''):
+    '''
+    This method prepares the template data needed for most page renderings.
+
+    :param request: http request object
+    :param catid: Optional
+    :param itemid: Optional
+    :param edit_item: Optional
+    :param message: Optional
+    :return: rendered page template
+    '''
     def is_not_empty(any_structure):
         if any_structure:
             return True
