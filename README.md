@@ -80,9 +80,9 @@ Item Delete Dialog
 There are 3 main api endpoints available to users.
 - /api/v1/catalog: <br>This returns a list of categories and associated items.
 - /api/v1/categories <br>This returns a list of all categories.  
-- /api/v1/categories/*category-name* <br>Returns one category where name=*category-name* record if found.
+- /api/v1/categories/**category-name** <br>Returns one category where name=**category-name** record if found.
 - /api/v1/items<br>Returns a list of all items in database.
-- /api/v1/items/*item-id*<br>Returns one item record where item id=*item-id*.
+- /api/v1/items/**item-id**<br>Returns one item record where item id=**item-id**.
 
 
 
