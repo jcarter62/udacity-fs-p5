@@ -303,10 +303,14 @@ def category_add():
         return homepage_content(request)
     elif request.method == 'GET':
         cat_list = api_categories()
+        categories = []
+        for c in cat_list.json:
+            print c['name']
+            categories.append(c['name'])
 
         data = {
             'title': 'Add Category',
-            'categories': cat_list.json,
+            'categories': categories,
             'category': '',
             'logged_in': user_logged_in(request),
             'session': get_session_info(),
@@ -527,21 +531,16 @@ def api_categories(catid=''):
     except Exception, e:
         print 'API_Categories Error: ' + str(e)
 
-    # # Create sample data if empty
-    # if not recs:
-    #     sample = Sample()
-    #     for eachRec in sample.category():
-    #         rec = Category(name=eachRec['name'], description=eachRec['description'])
-    #         session.add(rec)
-    #     session.commit()
-    #     recs = session.query(Category).all()
-
     json_records = [r.serialize for r in recs]
     session.close()
     return jsonify(json_records)
 
 
 def get_users(db_session):
+    """return a list of client_id and username.
+    :rtype: dict
+    :type db_session: Session()
+    """
     result = {}
     userlist = db_session.query(User).all()
     for user in userlist:
@@ -551,7 +550,6 @@ def get_users(db_session):
 
 @app.route('/api/v1/items')
 def api_items(sortby='', category=''):
-    all_records = True
     selected_id = 0
     category_specified = (category.__len__() > 0)
 
@@ -567,25 +565,14 @@ def api_items(sortby='', category=''):
     if selected_id == 0:
         recs = session.query(Item).all()
     else:
-        all_records = False
         recs = session.query(Item).filter_by(categoryid=selected_id).all()
 
     users = get_users(session)
 
-    # # Create sample data if empty
-    # if all_records and (recs == []):
-    #     sample = Sample()
-    #     for eachRec in sample.item():
-    #         rec = Item(name=eachRec['name'], categoryid=eachRec['categoryid'], \
-    #                    description=eachRec['description'], \
-    #                    create_date=eachRec['create_date'])
-    #         session.add(rec)
-    #     session.commit()
-    #     recs = session.query(Item).all()
-    #
     json_records = [r.serialize for r in recs]
     session.close()
 
+    # Add formatted date and owner to result set.
     for j in json_records:
         j['fmtdate'] = j['create_date'].__format__('%m/%d/%Y %H:%M')
         client_id = j['client_id']
@@ -630,12 +617,33 @@ def api_one_item(itemid):
         }
         result = jsonify(one)
 
-        #
-        # one_record['fmtdate'] = one_record['create_date'].__format__('%m/%d/%Y %H:%M')
-        #
         return result
     except:
         return jsonify({})
+
+@app.route('/api/v1/catalog')
+def api_catalog():
+    category_list = []
+    session = Session()
+    categories = session.query(Category).order_by(Category.name).all()
+    for cat in categories:
+        thiscat = { 'category': cat.name, 'id': cat.id }
+        thisid = cat.id
+        items = session.query(Item).filter_by(categoryid=thisid).all()
+        thisitems = []
+        for i in items:
+            thisitems.append({
+                'id': i.id,
+                'name': i.name,
+                'description': i.description,
+                'category_id': i.categoryid
+
+            })
+        thiscat['items'] = thisitems
+        category_list.append(thiscat)
+
+    result = jsonify({ 'catalog': category_list })
+    return result
 
 
 if __name__ == '__main__':

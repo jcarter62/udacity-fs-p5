@@ -17,18 +17,51 @@
             <form action="/category/add" method="post">
                 <div class="row">
                     <div class="col-4">Category Name:</div>
-                    <div class="col-4"><input type="text" name="name" value="{{ data.category }}"/></div>
+                    <div class="col-4"><input type="text" name="name"
+                                              value="{{ data.category }}"
+                                    onkeyup="chk_input_keyup(this)"
+                    /></div>
                 </div>
                 <br>
                 <div class="row">
-                    <div class="col-2"></div>
-                    <button class="btn btn-primary" role="button" type="submit">Save</button>
+                    <div class="col-1"></div>
+                    <div class="col-2">
+                        <button class="btn btn-primary" role="button" type="submit" id="saveBtn">Save</button>
+                    </div>
+                    <div class="col-6" id="error_message"></div>
                 </div>
             </form>
         </div>
         <div class="col-1"></div>
     </div>
 </div>
+<script type="application/javascript">
+
+    var categories = [{% for c in data.categories %}'{{ c }}'.toUpperCase(),{% endfor %}];
+    var msg = document.getElementById('error_message');
+    var btn = document.getElementById('saveBtn');
+
+    function chk_input_keyup(e) {
+        inp_value = e.value.toUpperCase();
+        duplicate = 0;
+
+        for (var i =0; i<categories.length; i++) {
+            console.log('cmp ' + categories[i] + ' == ' + inp_value );
+            if ( categories[i] == inp_value ) {
+                duplicate++;
+            }
+        }
+
+        msg.innerText = '';
+        btn.disabled = false;
+        if ( duplicate > 0 ) {
+             msg.innerText = 'This category already exists.';
+             btn.disabled = true;
+        }
+    }
+
+</script>
+
 {% include 'footer.html' %}
 </body>
 </html>
