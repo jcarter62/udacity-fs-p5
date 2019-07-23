@@ -15,6 +15,7 @@ secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits)
 
 import os
 
+# SQLite database path
 if os.sys.platform == 'linux2':
     db_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
     # db_root = '/var/local/'
@@ -27,6 +28,7 @@ db_path = os.path.join(db_root, 'catalogApp.db')
 
 print 'dbpath = ' + db_path
 DBName = 'sqlite:///' + db_path
+# SQLite database path
 
 
 class User(Base):
