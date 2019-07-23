@@ -12,7 +12,12 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits)
                      for x in xrange(32))
-DBName = 'sqlite:///catalogApp.db'
+
+import os
+script_path = os.path.dirname(os.path.abspath( __file__ ))
+
+print 'script path = ' + script_path
+DBName = 'sqlite:' + script_path + '/catalogApp.db'
 
 
 class User(Base):

@@ -13,6 +13,8 @@ from oauth2client.client import flow_from_clientsecrets
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+import sys
+sys.path.append('/vagrant/catalog')
 from models import Base, User, Item, Category, DBName
 
 auth = HTTPBasicAuth()
