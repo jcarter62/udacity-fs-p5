@@ -14,7 +14,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import sys
-sys.path.append('/vagrant/catalog')
+import os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from models import Base, User, Item, Category, DBName
 
 auth = HTTPBasicAuth()

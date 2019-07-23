@@ -14,10 +14,19 @@ secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits)
                      for x in xrange(32))
 
 import os
-script_path = os.path.dirname(os.path.abspath( __file__ ))
 
-print 'script path = ' + script_path
-DBName = 'sqlite:' + script_path + '/catalogApp.db'
+if os.sys.platform == 'linux2':
+    db_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+    # db_root = '/var/local/'
+    if not os.path.exists(db_root):
+        os.makedirs(db_root)
+else:
+    db_root = os.path.dirname(os.path.abspath(__file__))
+
+db_path = os.path.join(db_root, 'catalogApp.db')
+
+print 'dbpath = ' + db_path
+DBName = 'sqlite:///' + db_path
 
 
 class User(Base):
