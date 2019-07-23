@@ -158,6 +158,7 @@ def login_create():
 def login_provider(provider):
     # STEP 1 - Parse the auth code
     auth_code = request.data
+    print '/oauth/' + provider
     # print "Step 1 - Complete, received auth code %s" % auth_code
     if provider == 'google':
         # STEP 2 - Exchange for a token
@@ -584,6 +585,7 @@ def api_items(sortby='', category=''):
         recs = session.query(Item).filter_by(categoryid=selected_id).all()
 
     users = get_users(session)
+
 
     json_records = [r.serialize for r in recs]
     session.close()
